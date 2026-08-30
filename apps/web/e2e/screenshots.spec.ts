@@ -36,8 +36,11 @@ for (const [route, slug] of routes) {
       () => document.documentElement.scrollWidth > window.innerWidth,
     );
     expect(overflows).toBe(false);
+    const galleryDirectory = process.env.EHRFS_SCREENSHOT_OUTPUT_DIR;
     await page.screenshot({
-      path: `../../docs/assets/generated/${slug}-${testInfo.project.name}.png`,
+      path: galleryDirectory
+        ? `${galleryDirectory}/${slug}-${testInfo.project.name}.png`
+        : testInfo.outputPath(`${slug}-${testInfo.project.name}.png`),
       fullPage: false,
       animations: "disabled",
     });

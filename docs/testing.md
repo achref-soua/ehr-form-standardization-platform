@@ -17,26 +17,30 @@ unavailable or misconfigured NVIDIA runtime fails the target rather than being s
 Hardware-dependent checks write measured reports under `artifacts/`; reviewed benchmark reports
 under `docs/benchmarks/` identify the exact environment and command.
 
+Browser acceptance writes diagnostic captures to Playwright's ignored test-output directory.
+Only `make screenshots` resets the synthetic demo and regenerates the reviewed gallery under
+`docs/assets/generated/`, so an ordinary `make ci` never rewrites committed visual assets.
+
 ## Scenario matrix
 
-| Scenario | Expected invariant |
-| --- | --- |
-| Structured allergy | Explicit positive/negative/unknown states remain distinct |
-| Hidden conditional field | Hidden is not unanswered and produces no invented value |
-| Unknown version | No compatible released mapping means quarantine |
-| Changed value set | Compatibility fingerprint changes |
-| Repeated blood pressure | Systolic/diastolic pair and group instance remain linked |
-| Corrected weight | New event supersedes old; prior release stays reproducible |
-| JSON/XML contract | Versioned shape, typed scalar, locator, condition and repeat checks |
-| Hostile ZIP | Traversal, links, nesting, encryption, size and ratio fail before extraction |
-| Invalid unit | Bounded conversion rejects and quarantines |
-| Structured/narrative conflict | Rule emits conflict and abstains from publication |
-| Low OCR confidence | Candidate is retained as evidence or quarantined, never promoted |
-| Maker/checker | Author cannot approve own mapping |
-| Controlled replay | New mapping and research releases resolve the record |
-| Catalog coverage | Completion, usable coverage, and prevalence keep their denominators |
-| Site summary | Patient/answer fields are schema-impossible and small cells suppress |
-| Lineage | Raw object → canonical event → mapping → quality → OMOP → catalog |
+| Scenario                      | Expected invariant                                                           |
+| ----------------------------- | ---------------------------------------------------------------------------- |
+| Structured allergy            | Explicit positive/negative/unknown states remain distinct                    |
+| Hidden conditional field      | Hidden is not unanswered and produces no invented value                      |
+| Unknown version               | No compatible released mapping means quarantine                              |
+| Changed value set             | Compatibility fingerprint changes                                            |
+| Repeated blood pressure       | Systolic/diastolic pair and group instance remain linked                     |
+| Corrected weight              | New event supersedes old; prior release stays reproducible                   |
+| JSON/XML contract             | Versioned shape, typed scalar, locator, condition and repeat checks          |
+| Hostile ZIP                   | Traversal, links, nesting, encryption, size and ratio fail before extraction |
+| Invalid unit                  | Bounded conversion rejects and quarantines                                   |
+| Structured/narrative conflict | Rule emits conflict and abstains from publication                            |
+| Low OCR confidence            | Candidate is retained as evidence or quarantined, never promoted             |
+| Maker/checker                 | Author cannot approve own mapping                                            |
+| Controlled replay             | New mapping and research releases resolve the record                         |
+| Catalog coverage              | Completion, usable coverage, and prevalence keep their denominators          |
+| Site summary                  | Patient/answer fields are schema-impossible and small cells suppress         |
+| Lineage                       | Raw object → canonical event → mapping → quality → OMOP → catalog            |
 
 ## Coverage and mutation policy
 
