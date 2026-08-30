@@ -17,6 +17,13 @@ unavailable or misconfigured NVIDIA runtime fails the target rather than being s
 Hardware-dependent checks write measured reports under `artifacts/`; reviewed benchmark reports
 under `docs/benchmarks/` identify the exact environment and command.
 
+Scale evidence is deliberately layered. The browser scenario is a live end-to-end correctness
+proof. `make showcase-scale` defaults to a one-million-event rehearsal of the bounded canonical
+path; `SHOWCASE_EVENTS=100000000 make showcase-scale` reruns the full measured data-plane proof.
+Neither command claims end-to-end production throughput. That claim would require representative
+source traffic through the target PostgreSQL, MinIO, worker, quality, OMOP, catalog, and lineage
+deployment under concurrency, failure injection, and soak.
+
 Browser acceptance writes diagnostic captures to Playwright's ignored test-output directory.
 Only `make screenshots` resets the synthetic demo and regenerates the reviewed gallery under
 `docs/assets/generated/`, so an ordinary `make ci` never rewrites committed visual assets. The

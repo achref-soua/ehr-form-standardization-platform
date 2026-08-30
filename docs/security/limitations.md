@@ -16,5 +16,10 @@ requires a compatible licensed Athena snapshot plus wider conformance and data-q
 and text rules produce evidence-linked candidates and may abstain; they do not bypass quality
 gates or replace structured facts when confidence is low.
 
+The 100-million-event result measures bounded canonical Parquet generation, not end-to-end service
+capacity. The live pipeline is a correctness and controls demonstration; it has not been qualified
+with representative production concurrency, source distributions, infrastructure, or operating
+conditions. See ADR 0009 for the intended coordinated bulk-publication boundary.
+
 Pseudonymization is not anonymization. A real health-data warehouse requires a legal basis,
 governance, retention policy, rights process, security assessment, and applicable CNIL/HDS steps.

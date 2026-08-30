@@ -56,3 +56,16 @@ suggestions may help a steward find terminology candidates, but only determinist
 artifacts can affect runtime facts. The official CDM schema is installed, while the bounded
 publisher and checks are not presented as a replacement for a complete production ETL or an OHDSI
 Data Quality Dashboard assessment.
+
+## Scale-validation boundary
+
+The live scenario validates the whole semantic and evidence chain on a small deterministic fixture.
+The separate 100-million-event harness validates bounded canonical Parquet work units, memory,
+deterministic checksums, and duplicate detection; it does not traverse FastAPI, PostgreSQL, MinIO,
+quality publication, and OMOP for every event.
+
+For production bulk loads, a parent batch coordinator freezes the manifests and semantic release
+bindings, fans out idempotent 50,000-event partition jobs, and waits for all expected checksums. A
+retryable finalizer then verifies completeness and uniqueness, bulk-loads eligible OMOP staging
+rows, calculates catalog/lineage outputs, and atomically exposes one research release. See
+[ADR 0009](adr/0009-scale-validation-and-bulk-orchestration.md).

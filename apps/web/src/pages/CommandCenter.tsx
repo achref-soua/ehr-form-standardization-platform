@@ -4,6 +4,8 @@ import {
   Check,
   CircleAlert,
   FileCheck2,
+  Gauge,
+  Layers3,
   Play,
   ShieldCheck,
 } from "lucide-react";
@@ -26,6 +28,7 @@ import type {
   FormVersion,
   PipelineRun,
   QuarantineRecord,
+  ResearchRelease,
 } from "../api/generated";
 import {
   ErrorState,
@@ -50,8 +53,12 @@ export function CommandCenterPage() {
     queryFn: api.quarantine,
   });
   const coverage = useQuery({ queryKey: ["coverage"], queryFn: api.coverage });
+  const releases = useQuery({
+    queryKey: ["research-releases"],
+    queryFn: api.researchReleases,
+  });
 
-  const queries = [establishments, forms, runs, quarantine, coverage];
+  const queries = [establishments, forms, runs, quarantine, coverage, releases];
   if (queries.some((query) => query.isPending)) return <LoadingState />;
   const error = queries.find((query) => query.error)?.error;
   if (error) return <ErrorState error={error} />;
@@ -63,6 +70,14 @@ export function CommandCenterPage() {
   const runData = runs.data as PipelineRun[];
   const quarantineData = quarantine.data as QuarantineRecord[];
   const coverageData = coverage.data as CoverageMetric[];
+  const releaseData = releases.data as ResearchRelease[];
+  const latestRelease = releaseData.reduce<ResearchRelease | undefined>(
+    (latest, release) =>
+      latest === undefined || release.created_at > latest.created_at
+        ? release
+        : latest,
+    undefined,
+  );
   const activeQuarantine = quarantineData.filter(
     (record) => record.status !== "RESOLVED",
   );
@@ -107,11 +122,45 @@ export function CommandCenterPage() {
         />
         <Stat
           label="Published events"
-          value="18,420"
-          detail="Immutable release membership"
+          value={(latestRelease?.published_count ?? 0).toLocaleString("en-US")}
+          detail={latestRelease?.release_id ?? "No research release"}
           tone="good"
         />
       </div>
+
+      <Panel
+        title="Measured scale evidence"
+        subtitle="Reviewed local canonical/Parquet run · deliberately separate from the live seeded release above"
+        className="scale-evidence-panel"
+      >
+        <div className="scale-evidence-grid">
+          <div>
+            <Layers3 aria-hidden="true" />
+            <span>Canonical answer events</span>
+            <strong>100,000,000</strong>
+          </div>
+          <div>
+            <Layers3 aria-hidden="true" />
+            <span>Bounded work units</span>
+            <strong>2,000 × 50,000</strong>
+          </div>
+          <div>
+            <Gauge aria-hidden="true" />
+            <span>Recorded throughput</span>
+            <strong>4.48–5.08M/s</strong>
+          </div>
+          <div>
+            <Gauge aria-hidden="true" />
+            <span>Peak worker RSS</span>
+            <strong>87.69 MiB</strong>
+          </div>
+        </div>
+        <p className="scale-boundary">
+          This measured harness validates bounded canonical serialization,
+          deterministic checksums, and zero duplicate publication. It is not an
+          end-to-end API, PostgreSQL, MinIO, and OMOP load test.
+        </p>
+      </Panel>
 
       <div className="dashboard-grid">
         <Panel
