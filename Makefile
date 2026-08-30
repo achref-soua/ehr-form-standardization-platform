@@ -116,6 +116,8 @@ reset-demo: ## Reset only synthetic demo rows
 	uv run ehrfs demo reset
 
 screenshots: ## Capture all workspaces at desktop and mobile acceptance sizes
+	$(COMPOSE) up --build -d --wait --wait-timeout 240
+	$(COMPOSE) exec -T api ehrfs demo reset
 	pnpm --dir apps/web screenshots
 
 backup: ## Create a checksummed backup at BACKUP_DIR (must not exist)

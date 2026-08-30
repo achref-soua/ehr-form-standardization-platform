@@ -3,13 +3,14 @@ from __future__ import annotations
 import json
 from collections.abc import Iterator
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from sqlalchemy.orm import Session
 from testcontainers.community.postgres import PostgresContainer
 from typer.testing import CliRunner
 
-from ehrfs.cli.app import KEYS_EXIST_MESSAGE, app
+from ehrfs.cli.app import DEMO_MODE_REQUIRED_MESSAGE, KEYS_EXIST_MESSAGE, app
 from ehrfs.config import Settings, get_settings
 from ehrfs.demo import reset_demo
 from ehrfs.storage.database import create_engine, create_schema
@@ -90,6 +91,15 @@ def test_key_generation_refuses_accidental_replacement(tmp_path: Path) -> None:
     exit_code, output = _invoke("keys", "generate", "--destination", str(destination), "--force")
     assert exit_code == 0
     assert (destination / "ehrfs_signing_key.pub").exists()
+
+
+def test_demo_reset_is_disabled_outside_demo_mode(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr("ehrfs.cli.app.get_settings", lambda: SimpleNamespace(demo_mode=False))
+
+    exit_code, output = _invoke("demo", "reset")
+
+    assert exit_code == 2
+    assert DEMO_MODE_REQUIRED_MESSAGE in output
 
 
 @pytest.mark.integration
