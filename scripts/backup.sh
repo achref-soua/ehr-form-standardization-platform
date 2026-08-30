@@ -18,7 +18,24 @@ compose=(docker compose -f "$project_root/infra/compose/compose.yaml")
 "${compose[@]}" exec -T postgres pg_dump -U ehrfs_owner -d ehrfs --format=custom \
   > "$backup_target/postgres.dump"
 
-docker run --rm --network ehrfs_default \
+minio_container=$("${compose[@]}" ps -q minio)
+if [[ -z "$minio_container" ]]; then
+  echo "MinIO container is not running" >&2
+  exit 1
+fi
+compose_project=$(docker inspect --format '{{ index .Config.Labels "com.docker.compose.project" }}' "$minio_container")
+mapfile -t compose_networks < <(
+  docker network ls \
+    --filter "label=com.docker.compose.project=$compose_project" \
+    --filter "label=com.docker.compose.network=default" \
+    --format '{{.Name}}'
+)
+if [[ ${#compose_networks[@]} -ne 1 ]]; then
+  echo "could not resolve the Compose default network" >&2
+  exit 1
+fi
+
+docker run --rm --network "${compose_networks[0]}" \
   --user "$(id -u):$(id -g)" \
   --env MC_CONFIG_DIR=/tmp/.mc \
   --volume "$backup_target/objects:/backup" \
