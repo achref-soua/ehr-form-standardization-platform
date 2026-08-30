@@ -570,12 +570,14 @@ export function HealthPage() {
                 <ShieldCheck />
               </span>
               <div>
-                <strong>{event.action}</strong>
-                <small>
+                <strong data-testid="audit-action">{event.action}</strong>
+                <small data-testid="audit-resource-identity">
                   {event.actor_id} · {event.resource_type}:{event.resource_id}
                 </small>
               </div>
-              <Mono>{event.correlation_id}</Mono>
+              <span data-testid="audit-correlation-identity">
+                <Mono>{event.correlation_id}</Mono>
+              </span>
             </div>
           ))}
         </div>
