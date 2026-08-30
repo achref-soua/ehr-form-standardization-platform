@@ -1,0 +1,14 @@
+flowchart LR
+  WEB["Application React"] --> API["API FastAPI"]
+  API --> PG[("PostgreSQL\ncontrôle + tâches durables")]
+  API --> OBJ[("MinIO\npreuves + livrables")]
+  PG --> WORKER["Worker déterministe"]
+  AIRFLOW["Airflow optionnel"] -. planifie .-> WORKER
+  WORKER --> RAW["Objets bruts immuables"]
+  WORKER --> PARQUET["Canonique Parquet"]
+  PARQUET --> QUALITY{"Contrôles qualité"}
+  QUALITY -->|valide| OMOP["Projection OMOP 5.4"]
+  QUALITY -->|échec| QUAR["Quarantaine"]
+  OMOP --> CATALOG["Catalogue + lignage"]
+  OCR["OCR local"] --> QUALITY
+  MAP["Artefact de mapping signé"] -. version exacte .-> WORKER

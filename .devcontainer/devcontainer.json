@@ -1,0 +1,17 @@
+{
+  "name": "EHR Form Standardization Platform",
+  "build": { "dockerfile": "Dockerfile", "context": ".." },
+  "forwardPorts": [3000, 8000, 9000, 9001],
+  "postCreateCommand": "uv sync --frozen && pnpm install --frozen-lockfile",
+  "remoteUser": "vscode",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "charliermarsh.ruff",
+        "ms-python.python",
+        "ms-python.mypy-type-checker",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  }
+}

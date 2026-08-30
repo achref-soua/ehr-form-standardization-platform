@@ -1,0 +1,411 @@
+@page {
+  size: A4 landscape;
+  margin: 0;
+}
+
+:root {
+  --blue: #246589;
+  --blue-dark: #173f59;
+  --blue-pale: #e5f0f5;
+  --yellow: #fcc958;
+  --ink: #183142;
+  --muted: #5b6f7b;
+  --line: #cddbe3;
+  --paper: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  color: var(--ink);
+  background: #dfe7eb;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9.2pt;
+  line-height: 1.32;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+
+.page {
+  position: relative;
+  width: 297mm;
+  height: 210mm;
+  overflow: hidden;
+  padding: 15mm 17mm 14mm;
+  background: var(--paper);
+  break-after: page;
+  page-break-after: always;
+}
+
+.page:last-child {
+  break-after: auto;
+  page-break-after: auto;
+}
+
+.page::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4mm;
+  background: var(--blue);
+}
+
+.page::after {
+  content: attr(data-page) " / 8";
+  position: absolute;
+  right: 17mm;
+  bottom: 6mm;
+  color: var(--muted);
+  font-size: 7.5pt;
+  font-weight: 700;
+}
+
+.page-header {
+  min-height: 13mm;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10mm;
+  margin-bottom: 5mm;
+  padding-bottom: 3mm;
+  border-bottom: 0.4mm solid var(--yellow);
+}
+
+.page-header img {
+  flex: 0 0 41mm;
+  width: 41mm;
+  height: auto;
+}
+
+.page-header > div {
+  min-width: 0;
+}
+
+.kicker {
+  margin: 0 0 1.5mm;
+  color: var(--blue);
+  font-size: 7.4pt;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+table,
+pre {
+  margin-top: 0;
+}
+
+h1,
+h2 {
+  margin-bottom: 2mm;
+  color: var(--blue-dark);
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  line-height: 1.06;
+}
+
+h1 {
+  max-width: 210mm;
+  font-size: 28pt;
+}
+
+h2 {
+  font-size: 20pt;
+}
+
+h3 {
+  margin-bottom: 1.6mm;
+  color: var(--blue);
+  font-size: 9.6pt;
+  letter-spacing: 0.02em;
+}
+
+p {
+  margin-bottom: 2.2mm;
+}
+
+ul,
+ol {
+  margin-bottom: 2.5mm;
+  padding-left: 5mm;
+}
+
+li {
+  margin-bottom: 1mm;
+}
+
+strong {
+  color: var(--blue-dark);
+}
+
+.subtitle {
+  max-width: 225mm;
+  margin-bottom: 4mm;
+  color: var(--muted);
+  font-size: 12pt;
+}
+
+.lead {
+  font-size: 10.7pt;
+  line-height: 1.42;
+}
+
+.grid-2,
+.grid-3 {
+  display: grid;
+  gap: 5mm;
+}
+
+.grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.cols-40-60 {
+  grid-template-columns: 0.78fr 1.22fr;
+}
+
+.cols-55-45 {
+  grid-template-columns: 1.1fr 0.9fr;
+}
+
+.card,
+.callout,
+.metric {
+  border: 0.35mm solid var(--line);
+  border-radius: 2mm;
+  background: #fbfdfe;
+}
+
+.card {
+  padding: 3.4mm;
+}
+
+.card h3:last-child,
+.card p:last-child,
+.card ul:last-child {
+  margin-bottom: 0;
+}
+
+.callout {
+  padding: 3mm 3.5mm;
+  border-left: 1.4mm solid var(--yellow);
+  background: #fffaf0;
+}
+
+.callout p:last-child {
+  margin-bottom: 0;
+}
+
+.diagram {
+  width: 100%;
+  max-height: 112mm;
+  object-fit: contain;
+}
+
+.diagram.compact {
+  max-height: 73mm;
+}
+
+.diagram.tall {
+  max-height: 134mm;
+}
+
+.architecture-notes {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2.5mm;
+  margin-top: 4mm;
+}
+
+.architecture-notes div {
+  padding: 2.5mm;
+  border-top: 0.8mm solid var(--blue);
+  background: var(--blue-pale);
+  font-size: 8pt;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 7.9pt;
+}
+
+th,
+td {
+  padding: 1.7mm 2mm;
+  border: 0.25mm solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  color: white;
+  background: var(--blue);
+  font-weight: 700;
+}
+
+tbody tr:nth-child(even) {
+  background: #f2f7fa;
+}
+
+.states {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.3mm;
+  margin: 2mm 0 3mm;
+}
+
+.states span {
+  padding: 1mm 1.6mm;
+  border-radius: 99mm;
+  color: var(--blue-dark);
+  background: var(--blue-pale);
+  font-family: "Courier New", monospace;
+  font-size: 6.7pt;
+  font-weight: 700;
+}
+
+.steps {
+  counter-reset: step;
+  list-style: none;
+  padding: 0;
+}
+
+.steps li {
+  position: relative;
+  min-height: 7mm;
+  padding: 1.2mm 1mm 1.2mm 9mm;
+  border-bottom: 0.25mm solid var(--line);
+}
+
+.steps li::before {
+  counter-increment: step;
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0.7mm;
+  width: 6mm;
+  height: 6mm;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: white;
+  background: var(--blue);
+  font-size: 7pt;
+  font-weight: 800;
+}
+
+pre {
+  padding: 3mm;
+  border-radius: 2mm;
+  color: #e9f5fb;
+  background: var(--blue-dark);
+  font:
+    7.2pt/1.35 "Courier New",
+    monospace;
+  white-space: pre-wrap;
+}
+
+.formula {
+  padding: 3mm;
+  color: var(--blue-dark);
+  background: var(--blue-pale);
+  border-radius: 2mm;
+  font-family: "Courier New", monospace;
+  font-size: 8pt;
+  white-space: pre-line;
+}
+
+.risk-table td:first-child {
+  width: 24%;
+  color: var(--blue-dark);
+  font-weight: 700;
+}
+
+.footer-note {
+  position: absolute;
+  left: 17mm;
+  bottom: 6mm;
+  max-width: 220mm;
+  margin: 0;
+  color: var(--muted);
+  font-size: 7pt;
+}
+
+.page-title {
+  display: grid;
+  grid-template-columns: 1fr 48mm;
+  gap: 10mm;
+}
+
+.page-title .logo-panel {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
+.page-title .logo-panel img {
+  width: 47mm;
+  padding: 3mm;
+  border: 0.35mm solid var(--line);
+  border-radius: 2mm;
+}
+
+.decision-strip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2.4mm;
+  margin-top: 4mm;
+}
+
+.decision-strip div {
+  min-height: 20mm;
+  padding: 2.6mm;
+  color: var(--blue-dark);
+  background: var(--blue-pale);
+  border-top: 1mm solid var(--blue);
+  font-size: 7.8pt;
+  font-weight: 700;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3mm;
+  margin: 3mm 0;
+}
+
+.metric {
+  padding: 3mm;
+}
+
+.metric strong {
+  display: block;
+  margin-bottom: 1mm;
+  color: var(--blue);
+  font-family: Georgia, serif;
+  font-size: 17pt;
+  font-weight: 500;
+}
+
+@media screen {
+  .page {
+    margin: 8mm auto;
+    box-shadow: 0 5mm 12mm rgb(23 63 89 / 18%);
+  }
+}

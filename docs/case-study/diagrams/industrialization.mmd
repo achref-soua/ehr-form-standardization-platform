@@ -1,0 +1,9 @@
+flowchart LR
+  PR["Revue code / mapping"] --> TEST["Tests automatiques"]
+  TEST --> BUILD["Artefacts immuables"]
+  BUILD --> STAGE["Préproduction"]
+  STAGE --> REPLAY["Rejeu représentatif"]
+  REPLAY --> APPROVE["Approbation"]
+  APPROVE --> PILOT["Sites pilotes"]
+  PILOT --> ROLLOUT["Déploiement progressif"]
+  ROLLOUT --> MONITOR["Qualité + couverture"]

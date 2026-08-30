@@ -1,0 +1,23 @@
+groups:
+  - name: ehrfs
+    rules:
+      - alert: EhrfsApiUnavailable
+        expr: up{job="ehrfs-api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: EHRFS API is unavailable
+      - alert: EhrfsApiErrorRate
+        expr: sum(rate(ehrfs_api_requests_total{status=~"5.."}[5m])) / clamp_min(sum(rate(ehrfs_api_requests_total[5m])), 1) > 0.05
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: EHRFS API 5xx rate exceeds five percent
+      - alert: EhrfsPipelineFailures
+        expr: increase(ehrfs_pipeline_events_total{outcome="failed"}[15m]) > 0
+        labels:
+          severity: warning
+        annotations:
+          summary: A pipeline stage has failed

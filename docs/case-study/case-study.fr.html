@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>
+      Exploitation des formulaires personnalisés — proposition d’architecture
+    </title>
+    <link rel="stylesheet" href="case-study.css" />
+  </head>
+  <body>
+    <section class="page" data-page="1">
+      <div class="page-title">
+        <div>
+          <p class="kicker">
+            Proposition d’architecture technique · Entrepôt de données de santé
+            multi-sites
+          </p>
+          <h1>Exploitation des formulaires DPI personnalisés</h1>
+          <p class="subtitle">
+            Extraire, standardiser et documenter des données cliniques
+            hétérogènes sans perdre leur sens, leur provenance ni leurs états
+            d’absence.
+          </p>
+        </div>
+        <div class="logo-panel">
+          <img
+            src="../assets/brand/ehr-form-standardization-logo.png"
+            alt="EHR Form Standardization — smart health"
+          />
+        </div>
+      </div>
+
+      <div class="grid-2 cols-55-45">
+        <div>
+          <h3>Contexte</h3>
+          <p class="lead">
+            Un même DPI équipe plusieurs centaines d’établissements. Chacun
+            configure ses formulaires, libellés, listes de valeurs, unités,
+            conditions d’affichage, groupes répétés et documents. Une même
+            information clinique peut donc exister sous forme de colonne SQL,
+            EAV, <code>QuestionnaireResponse</code> FHIR, CDA, JSON/XML, texte
+            natif, PDF ou scan.
+          </p>
+          <div class="callout">
+            <p>
+              <strong>Thèse.</strong> La structure vient du moteur de
+              formulaires, le sens vient de mappings revus, et la publication
+              reste déterministe. Un élément inconnu est conservé et mis en
+              quarantaine ; il n’est jamais deviné.
+            </p>
+          </div>
+        </div>
+        <div>
+          <h3>Échelle et contraintes</h3>
+          <div class="metrics">
+            <div class="metric">
+              <strong>100 Go</strong>données structurées / site
+            </div>
+            <div class="metric">
+              <strong>800 Go</strong>données non structurées / site
+            </div>
+            <div class="metric">
+              <strong>100 M+</strong>réponses traitées par partitions
+            </div>
+          </div>
+          <ul>
+            <li>Reprises historiques et rafraîchissements incrémentaux.</li>
+            <li>
+              Versions locales et cycles de correction, annulation ou
+              suppression.
+            </li>
+            <li>
+              IA entraînée et exécutée en France ; aucun appel clinique externe.
+            </li>
+            <li>Résultats de recherche traçables, signés et reproductibles.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="decision-strip" aria-label="Décisions structurantes">
+        <div>Lire la définition avant les réponses</div>
+        <div>Séparer brut, canonique et OMOP</div>
+        <div>Lier chaque fait à une preuve</div>
+        <div>Publier seulement après contrôles</div>
+        <div>Exposer couverture et limites</div>
+      </div>
+      <p class="footer-note">
+        Document public · Démonstration bornée sur données synthétiques · Août
+        2026
+      </p>
+    </section>
+
+    <section class="page" data-page="2">
+      <header class="page-header">
+        <div>
+          <p class="kicker">Vue cible</p>
+          <h2>Architecture complète et responsabilités</h2>
+        </div>
+        <img src="../assets/brand/ehr-form-standardization-logo.png" alt="EHR Form Standardization" />
+      </header>
+      <img
+        class="diagram tall"
+        src="diagrams/generated/target-architecture.svg"
+        alt="Flux de l’application React jusqu’au catalogue en passant par les couches brutes, canoniques, qualité et OMOP"
+      />
+      <div class="architecture-notes">
+        <div>
+          <strong>Monolithe modulaire.</strong><br />API, worker, CLI et OCR
+          sont des processus séparés qui partagent les mêmes services.
+        </div>
+        <div>
+          <strong>Durabilité native.</strong><br />PostgreSQL porte les tâches,
+          baux, heartbeats, retries, outbox et clés d’idempotence.
+        </div>
+        <div>
+          <strong>Artefacts contrôlés.</strong><br />Mappings et releases sont
+          immuables, adressés par SHA-256 et vérifiables par signature Ed25519.
+        </div>
+        <div>
+          <strong>Orchestration sobre.</strong><br />Airflow est optionnel et
+          planifie les services ; aucune logique clinique ne vit dans les DAG.
+        </div>
+      </div>
+      <p class="footer-note">
+        Les flèches pleines transportent les données ; les pointillés
+        représentent les versions et contrôles.
+      </p>
+    </section>
+
+    <section class="page" data-page="3">
+      <header class="page-header">
+        <div>
+          <p class="kicker">Préserver avant de standardiser</p>
+          <h2>Sources, modèle canonique et stockage</h2>
+        </div>
+        <img src="../assets/brand/ehr-form-standardization-logo.png" alt="EHR Form Standardization" />
+      </header>
+      <div class="grid-2 cols-55-45">
+        <div>
+          <h3>Familles de sources</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Source</th>
+                <th>Traitement</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Relationnel / EAV</td>
+                <td>Extraction SQL, schéma et parsing typé</td>
+              </tr>
+              <tr>
+                <td>Formulaires dynamiques</td>
+                <td>Hiérarchie, conditions, calculs et répétitions</td>
+              </tr>
+              <tr>
+                <td>FHIR R4 / CDA</td>
+                <td>Adaptateurs conformes, extensions ambiguës refusées</td>
+              </tr>
+              <tr>
+                <td>JSON / XML / HTML</td>
+                <td>Parsing sécurisé et références source exactes</td>
+              </tr>
+              <tr>
+                <td>PDF / scans</td>
+                <td>Texte natif d’abord ; OCR local si pertinent</td>
+              </tr>
+              <tr>
+                <td>Cycle de vie</td>
+                <td>Brouillon, signé, corrigé, annulé, supprimé</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>États sémantiques conservés</h3>
+          <div class="states">
+            <span>PRESENT</span><span>EXPLICITLY_ABSENT</span
+            ><span>UNKNOWN</span> <span>NOT_RECORDED</span
+            ><span>NOT_APPLICABLE</span> <span>NOT_DISPLAYED_BY_FORM_LOGIC</span
+            ><span>INVALID</span> <span>VOIDED</span><span>SUPERSEDED</span
+            ><span>DELETED</span>
+          </div>
+          <p>
+            Une réponse négative, un champ vide et un champ masqué ne sont
+            jamais réduits au même <code>null</code>.
+          </p>
+        </div>
+        <div>
+          <img
+            class="diagram compact"
+            src="diagrams/generated/canonical-model.svg"
+            alt="Modèle canonique et ses liens de preuve"
+          />
+          <h3>Deux empreintes, deux usages</h3>
+          <ul>
+            <li>
+              <strong>Définition complète :</strong> identité, métadonnées et
+              représentation source.
+            </li>
+            <li>
+              <strong>Compatibilité :</strong> chemins, libellés, types,
+              valeurs, unités, répétitions, conditions, calculs et ordre
+              sémantique.
+            </li>
+          </ul>
+          <h3>Couches de stockage</h3>
+          <table>
+            <tbody>
+              <tr>
+                <td><strong>Brut</strong></td>
+                <td>Objets immuables, manifestes et checksums</td>
+              </tr>
+              <tr>
+                <td><strong>Canonique</strong></td>
+                <td>Parquet borné, source sémantique sans perte</td>
+              </tr>
+              <tr>
+                <td><strong>Contrôle</strong></td>
+                <td>PostgreSQL : mappings, jobs, audit et catalogue</td>
+              </tr>
+              <tr>
+                <td><strong>Recherche</strong></td>
+                <td>OMOP 5.4 + tables distinctes de release et lignage</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p class="footer-note">
+        FHIR conserve l’ordre déclaré ; les sources tabulaires non ordonnées
+        sont normalisées avant empreinte.
+      </p>
+    </section>
+
+    <section class="page" data-page="4">
+      <header class="page-header">
+        <div>
+          <p class="kicker">Connaissance revue, exécution exacte</p>
+          <h2>Mapping et traitement déterministe</h2>
+        </div>
+        <img src="../assets/brand/ehr-form-standardization-logo.png" alt="EHR Form Standardization" />
+      </header>
+      <img
+        class="diagram compact"
+        src="diagrams/generated/mapping-runtime.svg"
+        alt="Workflow de revue du mapping et publication déterministe"
+      />
+      <div class="grid-2">
+        <div class="card">
+          <h3>Ordre de résolution</h3>
+          <ol class="steps">
+            <li>Override exact propre à l’établissement</li>
+            <li>Empreinte exacte liée à la release</li>
+            <li>Famille de formulaire et chemin exact</li>
+            <li>Aucun mapping : quarantaine explicite</li>
+          </ol>
+          <p>
+            Ni similarité floue, ni embedding, ni réponse de LLM ne décide au
+            runtime.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Contrat d’un mapping publié</h3>
+          <p>
+            Identité source, domaine et concept cible, version du vocabulaire,
+            valeurs locales, conversions d’unités bornées, règles
+            d’absence/négation, comportement conditionnel et répété, reviewers
+            maker/checker, vecteurs de test, checksum et signature détachée.
+          </p>
+          <p>
+            Le langage de transformation est déclaratif et limité à une liste
+            blanche. Aucun code fourni par un utilisateur n’est évalué.
+          </p>
+        </div>
+      </div>
+      <div class="callout">
+        <p>
+          <strong>Correction et rejeu.</strong> Une règle corrigée crée une
+          nouvelle release de mapping, puis une nouvelle release de recherche.
+          Les sorties antérieures ne sont ni réécrites ni supprimées.
+        </p>
+      </div>
+      <p class="footer-note">
+        Les vocabulaires OMOP/Athena sont chargés séparément et liés par version
+        ; aucune terminologie restreinte n’est redistribuée.
+      </p>
+    </section>
+
+    <section class="page" data-page="5">
+      <header class="page-header">
+        <div>
+          <p class="kicker">Chemin optionnel, preuves obligatoires</p>
+          <h2>Données non structurées, OCR et ML</h2>
+        </div>
+        <img src="../assets/brand/ehr-form-standardization-logo.png" alt="EHR Form Standardization" />
+      </header>
+      <div class="grid-2 cols-40-60">
+        <div>
+          <img
+            class="diagram compact"
+            src="diagrams/generated/document-path.svg"
+            alt="Extraction du texte natif puis OCR local et règles cliniques"
+          />
+          <div class="callout">
+            <p>
+              <strong>Principe de sobriété.</strong> Inventorier et dédupliquer
+              avant d’extraire. Traiter uniquement les classes documentaires et
+              périodes nécessaires aux variables de recherche approuvées.
+            </p>
+          </div>
+          <pre>
+Texte : « Allergie à la pénicilline avec urticaire. »
+
+substance : Penicillin
+assertion : PRESENT
+réaction : Urticaria
+méthode : CDA_RULES_OR_NLP
+preuve : document_482 / p.2 / 144–189
+release : clinical_text_2026_04</pre>
+        </div>
+        <div>
+          <h3>Choisir le modèle le plus simple qui réponde au besoin</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Cas d’usage</th>
+                <th>Méthode privilégiée</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Découverte de schéma</td>
+                <td>Métadonnées et parsing déterministe</td>
+              </tr>
+              <tr>
+                <td>Valeurs connues / unités</td>
+                <td>Dictionnaires exacts et conversions UCUM bornées</td>
+              </tr>
+              <tr>
+                <td>Scan image</td>
+                <td>PaddleOCR auto-hébergé, CPU puis GPU si mesuré</td>
+              </tr>
+              <tr>
+                <td>Sections et tableaux</td>
+                <td>Règles, puis modèle de layout spécialisé si nécessaire</td>
+              </tr>
+              <tr>
+                <td>Négation / incertitude</td>
+                <td>Règles déterministes ou classifieur validé</td>
+              </tr>
+              <tr>
+                <td>Entités cliniques</td>
+                <td>Dictionnaires, puis NER spécialisé</td>
+              </tr>
+              <tr>
+                <td>Candidats de mapping</td>
+                <td>Recherche terminologique et classement lexical</td>
+              </tr>
+              <tr>
+                <td>Anomalies de qualité</td>
+                <td>Contrôles déterministes et suivi statistique</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>Contrat de preuve</h3>
+          <p>
+            Chaque candidat conserve document, page, section, texte ou
+            coordonnées, méthode, version d’image et de modèle, confiance et
+            statut de validation. Une faible confiance provoque l’abstention.
+          </p>
+          <p>
+            Un index vectoriel n’est ni le stockage documentaire ni une
+            dépendance de publication. Un LLM éventuellement hébergé en France
+            aide la revue mais ne publie aucun fait.
+          </p>
+        </div>
+      </div>
+      <p class="footer-note">
+        Le profil principal reste utilisable sans téléchargement de modèle OCR ;
+        l’inférence live est isolée dans des profils locaux dédiés.
+      </p>
+    </section>
+
+    <section class="page" data-page="6">
+      <header class="page-header">
+        <div>
+          <p class="kicker">Publier ou expliquer le refus</p>
+          <h2>Qualité, validation et représentativité</h2>
+        </div>
+        <img src="../assets/brand/ehr-form-standardization-logo.png" alt="EHR Form Standardization" />
+      </header>
+      <div class="grid-2 cols-55-45">
+        <div>
+          <h3>Contrôles en couches</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Niveau</th>
+                <th>Contrôles</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Technique</td>
+                <td>Comptages, checksums, doublons, lots absents</td>
+              </tr>
+              <tr>
+                <td>Structurel</td>
+                <td>
+                  Types, identifiants, hiérarchie, groupes répétés appariés
+                </td>
+              </tr>
+              <tr>
+                <td>Sémantique</td>
+                <td>Mapping signé, concepts, valeurs locales, unités</td>
+              </tr>
+              <tr>
+                <td>Clinique</td>
+                <td>Plages plausibles, combinaisons et ordre temporel</td>
+              </tr>
+              <tr>
+                <td>Provenance</td>
+                <td>Source, mapping, règles, vocabulaire et modèle</td>
+              </tr>
+              <tr>
+                <td>OMOP</td>
+                <td>Domaine concept, clés, dates et conformité 5.4</td>
+              </tr>
+              <tr>
+                <td>Scientifique</td>
+                <td>Couverture, données manquantes, biais et limites</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>Taxonomie d’échec exploitable</h3>
+          <div class="states">
+            <span>UNKNOWN_FORM_VERSION</span><span>UNKNOWN_MAPPING</span>
+            <span>UNKNOWN_LOCAL_VALUE</span><span>INVALID_UNIT</span>
+            <span>CONDITIONAL_LOGIC_CONFLICT</span
+            ><span>CLINICAL_INCONSISTENCY</span> <span>MISSING_PROVENANCE</span
+            ><span>OMOP_CONFORMANCE_FAILURE</span>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <h3>Réduire la charge experte</h3>
+            <ul>
+              <li>
+                Valider une version de formulaire, pas chaque ligne patient.
+              </li>
+              <li>
+                Réutiliser les empreintes exactes et revoir seulement les
+                changements.
+              </li>
+              <li>Prioriser par risque clinique, volume et nouveauté.</li>
+              <li>
+                Présenter candidats, échantillons et tests de non-régression.
+              </li>
+              <li>
+                Automatiser l’abstention et réaliser des audits fondés sur le
+                risque.
+              </li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Mesurer la représentativité</h3>
+            <p>
+              Par établissement et période : disponibilité, population éligible,
+              complétion, couverture utilisable, états manquants, taux de
+              quarantaine, couverture du mapping, distributions, démographie,
+              spécialité et contexte de soins.
+            </p>
+            <p>
+              Pour le NLP, conserver au moins un site ou une famille de
+              formulaire hors entraînement et tester les modèles sur des
+              gabarits jamais vus.
+            </p>
+          </div>
+        </div>
+      </div>
+      <p class="footer-note">
+        La quarantaine conserve la preuve et le contexte nécessaires à une
+        résolution contrôlée et à un rejeu idempotent.
+      </p>
+    </section>
+
+    <section class="page" data-page="7">
+      <header class="page-header">
+        <div>
+          <p class="kicker">Découvrabilité pour la recherche</p>
+          <h2>OMOP, catalogue clinique et couverture</h2>
+        </div>
+        <img src="../assets/brand/ehr-form-standardization-logo.png" alt="EHR Form Standardization" />
+      </header>
+      <div class="grid-2 cols-40-60">
+        <div>
+          <div class="callout">
+            <p>
+              <strong>Responsabilités distinctes.</strong> Le Parquet canonique
+              reste la source sémantique sans perte. OMOP est une projection de
+              recherche immuable. L’appartenance à une release et le lignage
+              vivent dans des tables dédiées, sans colonne propriétaire ajoutée
+              aux tables OMOP.
+            </p>
+          </div>
+          <h3>Identité d’un fait publié</h3>
+          <ul>
+            <li>Preuve et valeur source</li>
+            <li>Formulaire, chemin et état canonique</li>
+            <li>Releases mapping, règles et vocabulaire</li>
+            <li>Résultats qualité et méthode d’extraction</li>
+            <li>Ligne OMOP, release de recherche et métrique catalogue</li>
+          </ul>
+          <div class="formula">
+            Complétion = réponses enregistrées / opportunités éligibles
+            Couverture utilisable = réponses validées / opportunités éligibles
+            Prévalence = événements positifs / enregistrements utilisables
+          </div>
+          <p>
+            Sans dénominateur reconstituable, publier des nombres observés et
+            non une couverture populationnelle.
+          </p>
+        </div>
+        <div>
+          <h3>Ce que le catalogue rend visible</h3>
+          <p>
+            Définition et vocabulaire, sites contributeurs, périodes, sources,
+            méthode, statut du mapping, volumes patient/séjour, complétion,
+            couverture, qualité, dernier rafraîchissement, limites et release
+            OMOP.
+          </p>
+          <h3>Exemple — antécédent d’allergie</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Site</th>
+                <th>Disponible</th>
+                <th>Complétion</th>
+                <th>Utilisable</th>
+                <th>Méthode</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>A</td>
+                <td>Oui</td>
+                <td>87 %</td>
+                <td>84 %</td>
+                <td>Formulaire</td>
+                <td>Validé</td>
+              </tr>
+              <tr>
+                <td>B</td>
+                <td>Oui</td>
+                <td>Non calculable</td>
+                <td>Comptages</td>
+                <td>Règles CDA</td>
+                <td>Limité</td>
+              </tr>
+              <tr>
+                <td>C</td>
+                <td>Non</td>
+                <td>N/A</td>
+                <td>0 %</td>
+                <td>Aucune source</td>
+                <td>Absent</td>
+              </tr>
+              <tr>
+                <td>D</td>
+                <td>Partiel</td>
+                <td>62 %</td>
+                <td>55 %</td>
+                <td>Structuré + NLP</td>
+                <td>Surveillé</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="card">
+            <h3>Mode site</h3>
+            <p>
+              Si les données individuelles ne peuvent pas sortir, le même
+              package est exécuté localement. Le site exporte uniquement un
+              bundle agrégé signé, avec suppression des petites cellules.
+              Identifiants patient et lignes de réponse sont interdits par
+              schéma et par tests.
+            </p>
+          </div>
+        </div>
+      </div>
+      <p class="footer-note">
+        Le domaine du concept standard détermine la table OMOP de destination ;
+        le type du champ source ne suffit pas.
+      </p>
+    </section>
+
+    <section class="page" data-page="8">
+      <header class="page-header">
+        <div>
+          <p class="kicker">Industrialiser par preuves successives</p>
+          <h2>Déploiement, risques et trajectoire</h2>
+        </div>
+        <img src="../assets/brand/ehr-form-standardization-logo.png" alt="EHR Form Standardization" />
+      </header>
+      <img
+        class="diagram compact"
+        src="diagrams/generated/industrialization.svg"
+        alt="Chaîne de tests, artefacts, rejeu, pilote et déploiement progressif"
+      />
+      <div class="grid-2">
+        <div>
+          <h3>Déploiement progressif</h3>
+          <ol>
+            <li>Découverte de deux ou trois sites représentatifs.</li>
+            <li>Pilote canonique et formulaires structurés.</li>
+            <li>
+              Mappings, contrôles, OMOP et catalogue sur variables ciblées.
+            </li>
+            <li>Extension multi-sites par réutilisation des empreintes.</li>
+            <li>
+              OCR/NLP uniquement pour les variables sans source structurée.
+            </li>
+          </ol>
+          <h3>Principes opérationnels</h3>
+          <p>
+            Une base de code, configuration par site, conteneurs, lots bornés,
+            ingestion idempotente, recherche de tâches avec bail, rejeu
+            contrôlé, releases immuables, sauvegarde/restauration et télémétrie
+            corrélée.
+          </p>
+        </div>
+        <div>
+          <h3>Risques et contrôles</h3>
+          <table class="risk-table">
+            <tbody>
+              <tr>
+                <td>Dérive sémantique</td>
+                <td>Double empreinte, tests et maker/checker</td>
+              </tr>
+              <tr>
+                <td>Publication erronée</td>
+                <td>Abstention, quarantaine et preuves obligatoires</td>
+              </tr>
+              <tr>
+                <td>Biais inter-sites</td>
+                <td>Métriques par site/période et limites publiées</td>
+              </tr>
+              <tr>
+                <td>Exposition de données</td>
+                <td>
+                  Pseudonymisation locale, moindre privilège, chiffrement, audit
+                </td>
+              </tr>
+              <tr>
+                <td>Dépendance ML</td>
+                <td>Chemin déterministe par défaut et adapters isolés</td>
+              </tr>
+              <tr>
+                <td>Non-reproductibilité</td>
+                <td>Manifestes, checksums, versions et signatures</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="callout">
+        <p>
+          <strong>Critères initiaux.</strong> Chaque fait publié possède une
+          preuve et un mapping released ; une version inconnue ne publie rien ;
+          négatif et manquant restent distincts ; les corrections gardent
+          l’historique ; les comptages se réconcilient ; les échecs sont
+          explicites ; la couverture est visible par site et période ; aucune
+          donnée clinique n’est envoyée à un service d’IA externe.
+        </p>
+      </div>
+      <p class="footer-note">
+        La pseudonymisation ne constitue pas une anonymisation. Les obligations
+        RGPD, CNIL et HDS s’évaluent selon le traitement et sa base légale ; ce
+        démonstrateur ne revendique aucune certification.
+      </p>
+    </section>
+  </body>
+</html>

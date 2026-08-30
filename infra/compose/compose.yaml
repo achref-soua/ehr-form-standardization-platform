@@ -1,0 +1,252 @@
+name: ehrfs
+
+x-app-environment: &app-environment
+  EHRFS_ENVIRONMENT: development
+  EHRFS_DEMO_MODE: "true"
+  EHRFS_AUTO_CREATE_SCHEMA: "false"
+  EHRFS_DEPLOYMENT_MODE: central
+  EHRFS_DATABASE_URL: postgresql+psycopg://ehrfs_app:ehrfs_app_local_only@postgres:5432/ehrfs
+  EHRFS_DATABASE_SSLMODE: disable
+  EHRFS_S3_ENDPOINT: http://minio:9000
+  EHRFS_S3_ACCESS_KEY: ehrfs-local
+  EHRFS_S3_SECRET_KEY: ehrfs-local-secret
+  EHRFS_WEB_ORIGIN: http://localhost:3000
+  EHRFS_SESSION_SECRET: local-demo-session-secret-at-least-32-bytes
+  EHRFS_CSRF_SECRET: local-demo-csrf-secret-at-least-32-bytes
+  EHRFS_PSEUDONYMIZATION_KEY: local-site-pseudonym-key-at-least-32-bytes
+  EHRFS_SIGNING_PRIVATE_KEY_PATH: /run/secrets/ehrfs_signing_key
+  EHRFS_SIGNING_PUBLIC_KEY_PATH: /run/secrets/ehrfs_signing_key.pub
+  EHRFS_OCR_ENDPOINT: http://ocr-cpu:8081
+  EHRFS_OTEL_EXPORTER_OTLP_ENDPOINT: ${EHRFS_OTEL_EXPORTER_OTLP_ENDPOINT:-}
+
+services:
+  postgres:
+    image: postgres:18-bookworm@sha256:1c59e2c3c818eaa0f0628f695b36e7c9e362d6b219b36a54a32df645cbd7e1af
+    environment:
+      POSTGRES_DB: ehrfs
+      POSTGRES_USER: ehrfs_owner
+      POSTGRES_PASSWORD: ehrfs_owner_local_only
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ../postgres/01-roles.sql:/docker-entrypoint-initdb.d/01-roles.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ehrfs_owner -d ehrfs"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ehrfs-local
+      MINIO_ROOT_PASSWORD: ehrfs-local-secret
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  minio-init:
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z@sha256:a7fe349ef4bd8521fb8497f55c6042871b2ae640607cf99d9bede5e9bdf11727
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      EHRFS_S3_ENDPOINT: http://minio:9000
+      EHRFS_S3_ACCESS_KEY: ehrfs-local
+      EHRFS_S3_SECRET_KEY: ehrfs-local-secret
+    volumes:
+      - ../minio/init.sh:/init.sh:ro
+    entrypoint: ["/bin/sh", "/init.sh"]
+    restart: "no"
+
+  migrate:
+    build:
+      context: ../..
+      dockerfile: infra/docker/api.Dockerfile
+    command: ["alembic", "upgrade", "head"]
+    environment:
+      <<: *app-environment
+      EHRFS_DATABASE_URL: postgresql+psycopg://ehrfs_migrator:ehrfs_migrator_local_only@postgres:5432/ehrfs
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build:
+      context: ../..
+      dockerfile: infra/docker/api.Dockerfile
+    environment: *app-environment
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ../../.local/keys:/run/secrets:ro
+    group_add:
+      - "${EHRFS_HOST_GID:-1000}"
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: ../..
+      dockerfile: infra/docker/api.Dockerfile
+    command: ["python", "-m", "ehrfs.orchestration.worker"]
+    environment: *app-environment
+    depends_on:
+      api:
+        condition: service_healthy
+    volumes:
+      - ../../.local/keys:/run/secrets:ro
+    group_add:
+      - "${EHRFS_HOST_GID:-1000}"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import os; os.kill(1, 0)"]
+      interval: 15s
+      timeout: 3s
+      start_period: 10s
+      retries: 3
+    restart: unless-stopped
+
+  web:
+    build:
+      context: ../..
+      dockerfile: infra/docker/web.Dockerfile
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:3000:8080"
+    restart: unless-stopped
+
+  ocr-cpu:
+    build:
+      context: ../..
+      dockerfile: infra/docker/ocr.Dockerfile
+    profiles: ["ocr-cpu"]
+    environment:
+      EHRFS_OCR_DEVICE: cpu
+      EHRFS_OCR_LANGUAGE: fr
+      EHRFS_OCR_MODEL: PP-OCRv5
+      EHRFS_OCR_MAX_BYTES: "15728640"
+      EHRFS_OCR_MAX_PIXELS: "40000000"
+      PADDLE_OCR_BASE_DIR: /models
+      PADDLE_PDX_CACHE_HOME: /models
+    volumes:
+      - ocr-models:/models
+    ports:
+      - "127.0.0.1:8081:8081"
+    mem_limit: 4g
+    cpus: 8
+    restart: unless-stopped
+
+  ocr-gpu:
+    build:
+      context: ../..
+      dockerfile: infra/docker/ocr-gpu.Dockerfile
+    profiles: ["ocr-gpu"]
+    environment:
+      EHRFS_OCR_DEVICE: gpu
+      EHRFS_OCR_LANGUAGE: fr
+      EHRFS_OCR_MODEL: PP-OCRv5
+      EHRFS_OCR_MAX_BYTES: "15728640"
+      EHRFS_OCR_MAX_PIXELS: "40000000"
+      PADDLE_OCR_BASE_DIR: /models
+      PADDLE_PDX_CACHE_HOME: /models
+    volumes:
+      - ocr-models:/models
+    ports:
+      - "127.0.0.1:8082:8081"
+    gpus: all
+    mem_limit: 4g
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.5.0@sha256:63805ebb8d2b3920190daf1cb14a60871b16fd38bed42b857a3182bc621f4996
+    profiles: ["full"]
+    command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus"]
+    volumes:
+      - ../monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus-data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    restart: unless-stopped
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.133.0@sha256:98274b756324abdb2473fa0c898247a246091e861e61d1548f9be483198eecea
+    profiles: ["full"]
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    volumes:
+      - ../monitoring/otel-collector.yaml:/etc/otelcol-contrib/config.yaml:ro
+    ports:
+      - "127.0.0.1:4317:4317"
+      - "127.0.0.1:13133:13133"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:12.1.1@sha256:a1701c2180249361737a99a01bc770db39381640e4d631825d38ff4535efa47d
+    profiles: ["full"]
+    environment:
+      GF_SECURITY_ADMIN_USER: ehrfs
+      GF_SECURITY_ADMIN_PASSWORD: ehrfs-local-only
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ../monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana-data:/var/lib/grafana
+    ports:
+      - "127.0.0.1:3001:3000"
+    restart: unless-stopped
+
+  airflow:
+    image: apache/airflow:3.0.6-python3.12@sha256:235a362ae98882d21c9f6bfa0b9cdd5da8f36c94b5d58c397cf7a9674509be35
+    profiles: ["full"]
+    command: ["airflow", "standalone"]
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/dags
+      EHRFS_API_URL: http://api:8000
+    volumes:
+      - ../../airflow/dags:/opt/airflow/dags:ro
+      - airflow-data:/opt/airflow
+    ports:
+      - "127.0.0.1:8088:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  clamav:
+    image: clamav/clamav:1.4.6@sha256:761f6c99b8d9134b39431f8c200189cda749b17310091561bfa8b732f32bfada
+    profiles: ["security"]
+    ports:
+      - "127.0.0.1:3310:3310"
+    volumes:
+      - clamav-data:/var/lib/clamav
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  minio-data:
+  prometheus-data:
+  grafana-data:
+  airflow-data:
+  clamav-data:
+  ocr-models:

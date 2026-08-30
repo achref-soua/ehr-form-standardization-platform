@@ -1,0 +1,13 @@
+flowchart LR
+  DEF["Définition"] --> FP["Double empreinte"]
+  FP --> KNOWN{"Compatible ?"}
+  KNOWN -->|oui| TEST["Tests du mapping"]
+  KNOWN -->|non| REVIEW["Revue des changements"]
+  REVIEW --> TEST
+  TEST --> APPROVE["Validation maker/checker"]
+  APPROVE --> RELEASE["Artefact signé"]
+  RELEASE -.-> RESOLVE["Résolution exacte"]
+  INPUT["Événement canonique"] --> RESOLVE
+  RESOLVE --> GATE{"Contrôles"}
+  GATE -->|réussi| PUBLISH["Nouvelle release"]
+  GATE -->|refusé| QUAR["Quarantaine"]

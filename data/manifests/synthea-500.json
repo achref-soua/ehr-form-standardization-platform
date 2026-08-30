@@ -1,0 +1,27 @@
+{
+  "base_image": "eclipse-temurin:25-jre-jammy@sha256:10c251954d0bfe1a59ba93505f8c628d755919412400aa98685764c9353605d6",
+  "contains_real_patient_data": false,
+  "dataset_sha256": "7b8b8df6699c79fb4de0cec8063e6e48dc795861b278b783f9d2c83b936348d3",
+  "file_count": 19,
+  "generated_living_patients": 500,
+  "generated_total_records": 579,
+  "generator": {
+    "jar_sha256": "ed43c20ad40ba5c3bc724503a5af032715fe3c491620b766148e7c2361e6ecc1",
+    "release_commit": "0185c09",
+    "source": "https://github.com/synthetichealth/synthea",
+    "version": "4.0.0"
+  },
+  "licence": "Apache-2.0",
+  "reproducibility_note": "Seeded clinical population; exact checksum records this run because parallel bulk export ordering and metadata are not byte-stable upstream.",
+  "settings": {
+    "bulk_ndjson": true,
+    "end_date": "20260828",
+    "fhir_r4": true,
+    "hospital_exports": false,
+    "population": 500,
+    "practitioner_exports": false,
+    "seed": 20260828,
+    "us_core_ig": false
+  },
+  "total_bytes": 993582954
+}

@@ -1,0 +1,15 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Generated, local-only, dependency, and report paths are outside the repository boundary"
+paths = [
+  '''^\.local/''',
+  '''^\.venv/''',
+  '''^artifacts/''',
+  '''^apps/web/coverage/''',
+  '''^apps/web/dist/''',
+  '''^apps/web/node_modules/''',
+  '''^data/generated/''',
+  '''^node_modules/''',
+]

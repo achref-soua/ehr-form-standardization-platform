@@ -1,0 +1,9 @@
+flowchart LR
+  DOC["CDA / PDF / image"] --> DEDUP["Inventaire + checksum"]
+  DEDUP --> NATIVE{"Texte natif exploitable ?"}
+  NATIVE -->|oui| SECTION["Sections + mise en page"]
+  NATIVE -->|non| OCR["OCR auto-hébergé"]
+  OCR --> SECTION
+  SECTION --> RULES["Règles, dictionnaires, assertions"]
+  RULES --> CAND["Candidat avec preuve"]
+  CAND --> GATE["Mêmes contrôles qualité"]

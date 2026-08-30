@@ -1,0 +1,53 @@
+name: Container verification
+
+on:
+  pull_request:
+    paths:
+      - "infra/**"
+      - "services/**"
+      - "src/**"
+      - "apps/**"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "pnpm-lock.yaml"
+  push:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: api
+            dockerfile: infra/docker/api.Dockerfile
+          - name: web
+            dockerfile: infra/docker/web.Dockerfile
+          - name: ocr-cpu
+            dockerfile: infra/docker/ocr.Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          load: true
+          push: false
+          tags: ehrfs/${{ matrix.name }}:ci
+          provenance: mode=max
+          sbom: true
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
+      - uses: aquasecurity/trivy-action@0.33.1
+        with:
+          version: v0.74.0
+          image-ref: ehrfs/${{ matrix.name }}:ci
+          format: table
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: "1"
