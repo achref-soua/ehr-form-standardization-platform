@@ -1,9 +1,11 @@
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
-.PHONY: help install format format-check lint typecheck test test-python test-web build api worker web keys data-synthea up up-full up-ocr-cpu up-ocr-gpu ocr-smoke ocr-smoke-gpu security-smoke full-profile-smoke recovery-smoke mutation container-scan ocr-container-scan down logs seed reset-demo screenshots backup restore clean-preview clean-confirm openapi case-study docs lock-check security-audit ci-static ci-test ci-integration ci verify-all benchmark-100m
+.PHONY: help install format format-check lint typecheck test test-python test-web build api worker web keys data-synthea up up-full up-ocr-cpu up-ocr-gpu showcase-up showcase-check showcase-reset showcase-scale ocr-smoke ocr-smoke-gpu security-smoke full-profile-smoke recovery-smoke mutation container-scan ocr-container-scan down logs seed reset-demo screenshots backup restore clean-preview clean-confirm openapi case-study docs lock-check security-audit ci-static ci-test ci-integration ci verify-all benchmark-100m
 
 COMPOSE := docker compose -f infra/compose/compose.yaml
 IMAGE_PREFIX := $(or $(COMPOSE_PROJECT_NAME),ehrfs)
+SHOWCASE_EVENTS ?= 1000000
+SHOWCASE_PARTITION_ROWS ?= 50000
 
 help: ## Show available targets
 	@awk 'BEGIN {FS = ":.*## "; printf "EHRFS local commands\n\n"} /^[a-zA-Z0-9_-]+:.*## / {printf "  %-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -76,6 +78,21 @@ up-ocr-cpu: keys ## Start core plus isolated local PaddleOCR CPU inference
 up-ocr-gpu: keys ## Start core plus isolated local PaddleOCR GPU inference
 	$(COMPOSE) --profile ocr-gpu up --build -d
 
+showcase-up: keys ## Start, reset, and verify the complete CPU interview showcase
+	@test -f .env || (echo 'Missing .env: run cp .env.example .env' && exit 2)
+	EHRFS_OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317 $(COMPOSE) --profile full --profile ocr-cpu up --build -d --wait --wait-timeout 600
+	$(COMPOSE) exec -T api ehrfs demo reset
+	uv run python scripts/showcase_check.py --wait-seconds 120
+
+showcase-check: ## Check every browser-facing interview service
+	uv run python scripts/showcase_check.py
+
+showcase-reset: ## Restore only the deterministic synthetic interview scenario
+	$(COMPOSE) exec -T api ehrfs demo reset
+
+showcase-scale: ## Run a bounded scale rehearsal; set SHOWCASE_EVENTS=100000000 for the full proof
+	uv run --group benchmark python scripts/benchmark_100m.py --events $(SHOWCASE_EVENTS) --partition-rows $(SHOWCASE_PARTITION_ROWS) --output artifacts/benchmarks/answer-events-showcase.json
+
 ocr-smoke: ## Run and measure live local OCR against the synthetic French fixture
 	$(COMPOSE) --profile ocr-cpu up --build -d --wait --wait-timeout 600 ocr-cpu
 	uv run python scripts/ocr_smoke.py
@@ -110,10 +127,10 @@ logs: ## Follow core service logs
 	$(COMPOSE) logs --tail=200 -f api worker web
 
 seed: ## Idempotently seed the deterministic demonstration
-	uv run ehrfs demo run
+	$(COMPOSE) exec -T api ehrfs demo run
 
 reset-demo: ## Reset only synthetic demo rows
-	uv run ehrfs demo reset
+	$(COMPOSE) exec -T api ehrfs demo reset
 
 screenshots: ## Capture all workspaces at desktop and mobile acceptance sizes
 	$(COMPOSE) up --build -d --wait --wait-timeout 240

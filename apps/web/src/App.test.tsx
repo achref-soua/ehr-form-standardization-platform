@@ -129,6 +129,22 @@ describe("workspace routing", () => {
     expect(await screen.findByText("Allergy history")).toBeVisible();
   });
 
+  it("separates the live release count from measured scale evidence", async () => {
+    installFetchMock();
+    renderApp("/");
+    expect(await screen.findByText("842")).toBeVisible();
+    expect(screen.getByText("release_2026_08")).toBeVisible();
+    expect(screen.getByText("100,000,000")).toBeVisible();
+    expect(screen.getByText(/not an end-to-end API/i)).toBeVisible();
+    expect(screen.queryByText("18,420")).not.toBeInTheDocument();
+  });
+
+  it("reports an empty live release without inventing publication", async () => {
+    installFetchMock({ "/api/v1/omop/releases": [] });
+    renderApp("/");
+    expect(await screen.findByText("No research release")).toBeVisible();
+  });
+
   it("renders a recoverable boot error when the API is unavailable", async () => {
     vi.stubGlobal(
       "fetch",
@@ -174,6 +190,7 @@ describe("workspace routing", () => {
   });
 
   it.each([
+    ["/", "/api/v1/omop/releases"],
     ["/sources", "/api/v1/establishments"],
     ["/mappings", "/api/v1/mapping-releases"],
     ["/quarantine", "/api/v1/mapping-releases"],

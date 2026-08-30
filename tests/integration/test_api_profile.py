@@ -64,6 +64,7 @@ def api_client(tmp_path_factory: pytest.TempPathFactory) -> Iterator[tuple[TestC
     key_directory = tmp_path_factory.mktemp("keys")
     with PostgresContainer(image=POSTGRES_IMAGE, driver="psycopg") as postgres:
         settings = Settings(
+            auto_create_schema=True,
             environment="test",
             database_url=postgres.get_connection_url(),
             database_sslmode="disable",

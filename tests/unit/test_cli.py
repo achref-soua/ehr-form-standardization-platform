@@ -30,6 +30,7 @@ def cli_database() -> Iterator[None]:
     ):
         monkeypatch.setenv("EHRFS_DATABASE_URL", postgres.get_connection_url())
         monkeypatch.setenv("EHRFS_DATABASE_SSLMODE", "disable")
+        monkeypatch.setenv("EHRFS_AUTO_CREATE_SCHEMA", "true")
         get_settings.cache_clear()
         yield
         get_settings.cache_clear()

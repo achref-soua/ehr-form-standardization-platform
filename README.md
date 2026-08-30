@@ -78,26 +78,56 @@ and Platform operator. Persona switching exists only when `EHRFS_DEMO_MODE=true`
 
 Core startup is CPU-only and does not download an OCR model. Stop it with `make down`.
 
+### Interview showcase
+
+To start the complete CPU demonstration, including Airflow, observability, local OCR, and a reset
+of only the deterministic synthetic scenario:
+
+```bash
+make showcase-up
+```
+
+The launcher waits for and reports all eight browser-facing services. Recheck them at any time with
+`make showcase-check`; restore the opening version-4 quarantine state with `make showcase-reset`.
+The exact walkthrough and URLs are in the [demonstration guide](docs/interview-guide.md).
+
+There are two deliberately separate proofs. The web application runs the complete raw → canonical
+→ mapping → quality/quarantine → OMOP → catalog/lineage path. The scale harness measures bounded
+canonical Parquet processing without pretending it is an end-to-end service benchmark:
+
+```bash
+make showcase-scale
+SHOWCASE_EVENTS=100000000 make showcase-scale
+```
+
+The first command is a one-million-event rehearsal; the second reruns the reviewed 100-million-event
+proof. See [ADR 0009](docs/adr/0009-scale-validation-and-bulk-orchestration.md) for the production
+bulk coordinator and atomic publication design.
+
 ## Build and run reference
 
-| Command | Purpose |
-| --- | --- |
-| `make install` | Verify and install both lockfiles |
-| `make keys` | Generate local Ed25519 keys with restrictive permissions |
-| `make api`, `make worker`, `make web` | Run an individual development process |
-| `make up` | Build and start PostgreSQL, MinIO, API, worker, and web |
-| `make up-full` | Add Prometheus, Grafana, and the Airflow adapter |
-| `make up-ocr-cpu` | Add isolated CPU OCR on port 8081 |
-| `make up-ocr-gpu` | Add isolated NVIDIA OCR on port 8082 |
-| `make seed` | Idempotently seed the guided synthetic scenario |
-| `make reset-demo` | Reset only demonstration rows |
-| `make docs` | Rebuild OpenAPI, Mermaid SVGs, and the eight-page French PDF |
-| `make openapi` | Regenerate OpenAPI and TypeScript contracts |
-| `make test` | Run Python and frontend suites |
-| `make ci` | Run the reproducible pull-request quality pipeline |
-| `make verify-all` | Run extended integration, E2E, OCR, recovery, and replay checks |
-| `make clean-preview` | Preview generated paths eligible for removal |
-| `CONFIRM=clean-generated make clean-confirm` | Remove only the previewed generated paths |
+| Command                                      | Purpose                                                         |
+| -------------------------------------------- | --------------------------------------------------------------- |
+| `make install`                               | Verify and install both lockfiles                               |
+| `make keys`                                  | Generate local Ed25519 keys with restrictive permissions        |
+| `make api`, `make worker`, `make web`        | Run an individual development process                           |
+| `make up`                                    | Build and start PostgreSQL, MinIO, API, worker, and web         |
+| `make up-full`                               | Add Prometheus, Grafana, and the Airflow adapter                |
+| `make up-ocr-cpu`                            | Add isolated CPU OCR on port 8081                               |
+| `make up-ocr-gpu`                            | Add isolated NVIDIA OCR on port 8082                            |
+| `make showcase-up`                           | Start, reset, and verify the complete CPU interview stack       |
+| `make showcase-check`                        | Check all eight browser-facing showcase services                |
+| `make showcase-reset`                        | Restore the opening synthetic quarantine scenario               |
+| `make showcase-scale`                        | Run a one-million-event bounded scale rehearsal                 |
+| `make seed`                                  | Idempotently seed the guided synthetic scenario                 |
+| `make reset-demo`                            | Reset only demonstration rows                                   |
+| `make docs`                                  | Rebuild OpenAPI, Mermaid SVGs, and the eight-page French PDF    |
+| `make openapi`                               | Regenerate OpenAPI and TypeScript contracts                     |
+| `make test`                                  | Run Python and frontend suites                                  |
+| `make ci`                                    | Run the reproducible pull-request quality pipeline              |
+| `make verify-all`                            | Run extended integration, E2E, OCR, recovery, and replay checks |
+| `make clean-preview`                         | Preview generated paths eligible for removal                    |
+| `CONFIRM=clean-generated make clean-confirm` | Remove only the previewed generated paths                       |
 
 Python dependencies are managed only through uv; frontend dependencies are managed only through
 pnpm. `uv.lock`, both OCR locks, and `pnpm-lock.yaml` are committed. Container bases are pinned by
@@ -117,15 +147,15 @@ Every supported setting is documented inline in [.env.example](.env.example). Ru
 are validated on startup; placeholder secrets fail outside demo mode, heartbeats must be shorter
 than leases, and the deployment mode is restricted to `central` or `site`.
 
-| Variable | Default | Meaning |
-| --- | --- | --- |
-| `EHRFS_DEPLOYMENT_MODE` | `central` | Patient-level central pipeline or site-local aggregate export |
-| `EHRFS_DEMO_MODE` | `true` | Enables seeded personas and generated-fixture conveniences |
-| `EHRFS_DATABASE_URL` | Compose DSN | PostgreSQL control, audit, queue, and OMOP schemas |
-| `EHRFS_PARTITION_ROWS` | `50000` | Maximum canonical answer events per work unit |
-| `EHRFS_SMALL_CELL_THRESHOLD` | `10` | Suppression threshold for exported aggregate cells |
-| `EHRFS_OCR_ENDPOINT` | local profile | Local-only OCR HTTP boundary |
-| `EHRFS_OTEL_EXPORTER_OTLP_ENDPOINT` | unset/Compose | Optional OTLP trace destination |
+| Variable                            | Default       | Meaning                                                       |
+| ----------------------------------- | ------------- | ------------------------------------------------------------- |
+| `EHRFS_DEPLOYMENT_MODE`             | `central`     | Patient-level central pipeline or site-local aggregate export |
+| `EHRFS_DEMO_MODE`                   | `true`        | Enables seeded personas and generated-fixture conveniences    |
+| `EHRFS_DATABASE_URL`                | Compose DSN   | PostgreSQL control, audit, queue, and OMOP schemas            |
+| `EHRFS_PARTITION_ROWS`              | `50000`       | Maximum canonical answer events per work unit                 |
+| `EHRFS_SMALL_CELL_THRESHOLD`        | `10`          | Suppression threshold for exported aggregate cells            |
+| `EHRFS_OCR_ENDPOINT`                | local profile | Local-only OCR HTTP boundary                                  |
+| `EHRFS_OTEL_EXPORTER_OTLP_ENDPOINT` | unset/Compose | Optional OTLP trace destination                               |
 
 ## API and CLI
 
