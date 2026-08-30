@@ -18,8 +18,8 @@ model volume was already populated. CPU and GPU are measured separately; no numb
 
 ### GPU verification status, 2026-08-30
 
-- Latest local GPU image ID: `sha256:a61d0d5f20d342ab4147f4bf62e7c5d9b2e27f07642598f05e4f371d419c011a`
-  (3,271,343,819-byte local image); build completed successfully. The OCI manifest digest is not
+- Recorded local GPU image ID: `sha256:657571d3e97d42f4e6e6efb707b646ad1b424a227d265f2bb20d57e430459d50`
+  (3,271,343,824-byte local image); build completed successfully. The OCI manifest digest is not
   used as a stable identifier because each local build carries a fresh provenance attestation.
 - Container start: blocked before application startup by the host NVIDIA CDI configuration.
 - Recorded error: the CDI mount refers to removed WSL driver directory
@@ -49,6 +49,11 @@ from a smaller run.
 - Canonical Parquet checksum:
   `4cd0e19943e91bee5dab65cb0bb4dabadeb1e349983b11adc9f490178af2b8f6`.
 - Deterministic first-partition serialization: verified.
+
+A final-commit confirmation processed the same 100,000,000 events in 22.310416 seconds
+(4,482,211.28 events/second), used 91,906,048 bytes peak RSS, published 50,000,001 events with
+zero duplicates, and produced the identical canonical checksum above. The report retains both
+measurements rather than replacing normal run-to-run variance with an estimate.
 
 Command: `make benchmark-100m`. The complete measured JSON is written to
 `artifacts/benchmarks/answer-events-100m.json`.
