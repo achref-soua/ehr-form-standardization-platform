@@ -93,7 +93,19 @@ def create_mapping_release(
         "approved_at": approved_at.isoformat(),
     }
     release_id = f"mapping_{content_hash(core)[:16]}"
-    provisional = MappingReleaseArtifact(
+    unsigned = {
+        "schema_version": "1.0",
+        "release_id": release_id,
+        "parent_release_id": parent_release_id,
+        "vocabulary_release": vocabulary_release.model_dump(),
+        "entries": [entry.model_dump(mode="json") for entry in entries],
+        "authored_by": authored_by,
+        "approved_by": approved_by,
+        "approved_at": approved_at.isoformat().replace("+00:00", "Z"),
+    }
+    validate_mapping_tests(entries)
+    signed = signer.sign(canonical_json_bytes(unsigned))
+    return MappingReleaseArtifact(
         release_id=release_id,
         parent_release_id=parent_release_id,
         vocabulary_release=vocabulary_release,
@@ -101,11 +113,10 @@ def create_mapping_release(
         authored_by=authored_by,
         approved_by=approved_by,
         approved_at=approved_at,
-        payload_checksum_sha256="0" * 64,
-        signature_base64="pending",
-        signing_key_id=signer.key_id,
+        payload_checksum_sha256=content_hash(unsigned),
+        signature_base64=signed.signature_base64,
+        signing_key_id=signed.signing_key_id,
     )
-    return sign_mapping_release(provisional, signer)
 
 
 def verify_mapping_release(artifact: MappingReleaseArtifact, signer: ReleaseSigner) -> bool:
