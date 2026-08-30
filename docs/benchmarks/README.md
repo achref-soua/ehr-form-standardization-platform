@@ -18,8 +18,8 @@ model volume was already populated. CPU and GPU are measured separately; no numb
 
 ### GPU verification status, 2026-08-30
 
-- Locked GPU image configuration: `sha256:3523c82ea8c918ce33b80dedb52ff477162d1d2bfb437215fbeeed9c45d77065`
-  (3,271,343,813-byte local image); build completed successfully. The OCI manifest digest is not
+- Latest local GPU image ID: `sha256:a61d0d5f20d342ab4147f4bf62e7c5d9b2e27f07642598f05e4f371d419c011a`
+  (3,271,343,819-byte local image); build completed successfully. The OCI manifest digest is not
   used as a stable identifier because each local build carries a fresh provenance attestation.
 - Container start: blocked before application startup by the host NVIDIA CDI configuration.
 - Recorded error: the CDI mount refers to removed WSL driver directory
@@ -43,8 +43,8 @@ from a smaller run.
 - Host: 12th Gen Intel Core i7-12700H, 20 logical CPUs, 15 GiB RAM, WSL2 Linux 6.6.87.2.
 - Runtime: Python 3.12.13, NumPy 2.2.6, PyArrow 23.0.1.
 - Shape: 100,000,000 events in 2,000 sequential 50,000-event Parquet work units.
-- Elapsed: 21.087068 seconds; throughput: 4,742,242.94 events/second.
-- Peak worker RSS: 91,574,272 bytes (87.33 MiB), below the 4 GiB limit.
+- Elapsed: 19.684965 seconds; throughput: 5,080,019.23 events/second.
+- Peak worker RSS: 91,947,008 bytes (87.69 MiB), below the 4 GiB limit.
 - Published events: 50,000,001; duplicate publications: 0.
 - Canonical Parquet checksum:
   `4cd0e19943e91bee5dab65cb0bb4dabadeb1e349983b11adc9f490178af2b8f6`.
