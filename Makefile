@@ -42,6 +42,7 @@ test: test-python test-web ## Run all non-container tests
 build: ## Build the production web application and Python package
 	pnpm build
 	uv build
+	uv run python scripts/validate_wheel.py
 
 api: ## Run the API locally
 	uv run uvicorn ehrfs_api.app:app --reload --host 127.0.0.1 --port 8000

@@ -48,6 +48,14 @@ def test_schema_install_accepts_the_empty_bootstrap_schema(
     assert connection.statements == ["CREATE SCHEMA IF NOT EXISTS omop"]
 
 
+def test_packaged_omop_assets_take_precedence(tmp_path: Path) -> None:
+    module_path = tmp_path / "site-packages" / "ehrfs" / "omop" / "schema.py"
+    packaged_assets = module_path.parent / "assets"
+    packaged_assets.mkdir(parents=True)
+
+    assert schema_module.resolve_asset_root(module_path) == packaged_assets
+
+
 def test_official_omop_assets_reject_unknown_tampered_and_unsafe_inputs(tmp_path: Path) -> None:
     with pytest.raises(UnknownOmopAssetError):
         checked_asset("not-pinned.sql")
