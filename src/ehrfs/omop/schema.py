@@ -72,7 +72,9 @@ def install_schema(
     """Create all 39 official tables, primary keys, and recommended indices."""
     if not SCHEMA_PATTERN.fullmatch(schema):
         raise InvalidSchemaNameError(schema)
-    connection.execute(text(f"CREATE SCHEMA {schema}"))
+    # The PostgreSQL bootstrap creates the empty schema so it can establish
+    # least-privilege defaults before Alembic runs on a fresh volume.
+    connection.execute(text(f"CREATE SCHEMA IF NOT EXISTS {schema}"))
     for asset in INSTALL_ASSETS:
         for statement in statements(asset, schema=schema, asset_root=asset_root):
             connection.execute(text(statement))
