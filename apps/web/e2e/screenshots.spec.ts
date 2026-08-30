@@ -31,6 +31,25 @@ for (const [route, slug] of routes) {
       await page.getByTestId("health-check-time").evaluate((element) => {
         element.textContent = "Checked 12:00:00";
       });
+      await page
+        .getByTestId("audit-resource-identity")
+        .evaluateAll((elements) => {
+          elements.forEach((element, index) => {
+            element.textContent = `persona@demo.local · resource:fixture-${index + 1}`;
+          });
+        });
+      await page.getByTestId("audit-action").evaluateAll((elements) => {
+        elements.forEach((element, index) => {
+          element.textContent = `audit.event.fixture.${index + 1}`;
+        });
+      });
+      await page
+        .getByTestId("audit-correlation-identity")
+        .evaluateAll((elements) => {
+          elements.forEach((element, index) => {
+            element.textContent = `00000000-0000-0000-0000-${String(index + 1).padStart(12, "0")}`;
+          });
+        });
     }
     const overflows = await page.evaluate(
       () => document.documentElement.scrollWidth > window.innerWidth,

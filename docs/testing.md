@@ -19,7 +19,9 @@ under `docs/benchmarks/` identify the exact environment and command.
 
 Browser acceptance writes diagnostic captures to Playwright's ignored test-output directory.
 Only `make screenshots` resets the synthetic demo and regenerates the reviewed gallery under
-`docs/assets/generated/`, so an ordinary `make ci` never rewrites committed visual assets.
+`docs/assets/generated/`, so an ordinary `make ci` never rewrites committed visual assets. The
+health capture keeps the live response but normalizes its timestamp and operational identifiers
+after rendering; production UI and API responses remain unchanged.
 
 ## Scenario matrix
 
