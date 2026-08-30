@@ -39,6 +39,7 @@ from ehrfs.storage.tables import (
 )
 
 KEYS_EXIST_MESSAGE = "Signing keys already exist; use --force to replace them"
+DEMO_MODE_REQUIRED_MESSAGE = "Demo reset is available only when EHRFS_DEMO_MODE is enabled"
 
 app = typer.Typer(no_args_is_help=True, help="Deterministic EHR form standardization operations")
 data_app = typer.Typer(no_args_is_help=True)
@@ -391,7 +392,10 @@ def catalog_rebuild(as_json: Annotated[bool, typer.Option("--json")] = False) ->
 
 @demo_app.command("reset")
 def demo_reset(as_json: Annotated[bool, typer.Option("--json")] = False) -> None:
-    factory = _session_factory(get_settings())
+    settings = get_settings()
+    if not settings.demo_mode:
+        raise typer.BadParameter(DEMO_MODE_REQUIRED_MESSAGE)
+    factory = _session_factory(settings)
     with session_scope(factory) as session:
         seed_demo(session, reset=True)
     _emit({"reset": True, "scope": "synthetic-demo"}, as_json=as_json)
