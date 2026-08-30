@@ -77,7 +77,8 @@ def _emit(value: Any, *, as_json: bool) -> None:
 
 def _session_factory(settings: Settings) -> sessionmaker[Session]:
     engine = create_engine(settings)
-    create_schema(engine)
+    if settings.auto_create_schema:
+        create_schema(engine)
     return sessionmaker(engine, expire_on_commit=False)
 
 

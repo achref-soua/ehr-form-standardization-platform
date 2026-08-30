@@ -4,13 +4,15 @@ import json
 from collections.abc import Iterator
 from pathlib import Path
 from types import SimpleNamespace
+from typing import cast
 
 import pytest
+from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 from testcontainers.community.postgres import PostgresContainer
 from typer.testing import CliRunner
 
-from ehrfs.cli.app import DEMO_MODE_REQUIRED_MESSAGE, KEYS_EXIST_MESSAGE, app
+from ehrfs.cli.app import DEMO_MODE_REQUIRED_MESSAGE, KEYS_EXIST_MESSAGE, _session_factory, app
 from ehrfs.config import Settings, get_settings
 from ehrfs.demo import reset_demo
 from ehrfs.storage.database import create_engine, create_schema
@@ -100,6 +102,27 @@ def test_demo_reset_is_disabled_outside_demo_mode(monkeypatch: pytest.MonkeyPatc
 
     assert exit_code == 2
     assert DEMO_MODE_REQUIRED_MESSAGE in output
+
+
+def test_cli_session_factory_honors_automatic_schema_setting(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    created_with: list[object] = []
+    engine = cast(Engine, object())
+    monkeypatch.setattr("ehrfs.cli.app.create_engine", lambda _settings: engine)
+    monkeypatch.setattr("ehrfs.cli.app.create_schema", created_with.append)
+    disabled = Settings(auto_create_schema=False)
+
+    disabled_factory = _session_factory(disabled)
+
+    assert created_with == []
+    assert disabled_factory.kw["bind"] is engine
+
+    enabled = disabled.model_copy(update={"auto_create_schema": True})
+    enabled_factory = _session_factory(enabled)
+
+    assert created_with == [engine]
+    assert enabled_factory.kw["bind"] is engine
 
 
 @pytest.mark.integration
