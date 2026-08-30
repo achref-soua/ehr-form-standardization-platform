@@ -360,11 +360,17 @@ export function CatalogPage() {
                 <XAxis dataKey="site" axisLine={false} tickLine={false} />
                 <YAxis domain={[0, 100]} axisLine={false} tickLine={false} />
                 <Tooltip />
-                <Bar dataKey="usable" fill="#246589" radius={[5, 5, 0, 0]} />
+                <Bar
+                  dataKey="usable"
+                  fill="#246589"
+                  radius={[5, 5, 0, 0]}
+                  isAnimationActive={false}
+                />
                 <Bar
                   dataKey="prevalence"
                   fill="#d69d45"
                   radius={[5, 5, 0, 0]}
+                  isAnimationActive={false}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -489,7 +495,7 @@ export function HealthPage() {
         <div>
           <span className="pulse-dot" />
           <strong>All core systems operational</strong>
-          <small>
+          <small data-testid="health-check-time">
             Checked {new Date(health.data.time).toLocaleTimeString()}
           </small>
         </div>

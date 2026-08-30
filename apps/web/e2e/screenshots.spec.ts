@@ -21,6 +21,17 @@ for (const [route, slug] of routes) {
     await page.goto(route);
     await expect(page.locator("h1")).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => {
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+        }),
+    );
+    if (slug === "system-health") {
+      await page.getByTestId("health-check-time").evaluate((element) => {
+        element.textContent = "Checked 12:00:00";
+      });
+    }
     const overflows = await page.evaluate(
       () => document.documentElement.scrollWidth > window.innerWidth,
     );

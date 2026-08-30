@@ -141,8 +141,14 @@ export function CommandCenterPage() {
                   dataKey="completion"
                   fill="#a9bfcc"
                   radius={[5, 5, 0, 0]}
+                  isAnimationActive={false}
                 />
-                <Bar dataKey="usable" fill="#246589" radius={[5, 5, 0, 0]} />
+                <Bar
+                  dataKey="usable"
+                  fill="#246589"
+                  radius={[5, 5, 0, 0]}
+                  isAnimationActive={false}
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
