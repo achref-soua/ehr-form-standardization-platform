@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "fixture": "allergy-clean.png",
+  "model_version": "paddleocr-golden/1.0",
+  "device": "cpu",
+  "text": "Allergie à la pénicilline avec urticaire.",
+  "confidence": 0.97,
+  "bounding_box": [
+    64,
+    220,
+    1048,
+    330
+  ],
+  "candidate": {
+    "concept": "allergy history",
+    "substance": "Penicillin",
+    "reaction": "Urticaria",
+    "assertion": "PRESENT",
+    "publication_status": "EVIDENCE_LINKED_CANDIDATE"
+  },
+  "synthetic": true
+}

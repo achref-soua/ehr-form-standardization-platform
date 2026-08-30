@@ -1,0 +1,150 @@
+[project]
+name = "ehr-form-standardization-platform"
+version = "0.1.0"
+description = "Production-shaped reference implementation for deterministic EHR form standardization"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Achref Soua", email = "achref.soua@outlook.com" }]
+dependencies = [
+  "alembic>=1.16,<2",
+  "boto3>=1.40,<2",
+  "cryptography>=50,<51",
+  "defusedxml>=0.7,<1",
+  "duckdb>=1.3,<2",
+  "fastapi>=0.116,<1",
+  "httpx>=0.28,<1",
+  "orjson>=3.11,<4",
+  "opentelemetry-exporter-otlp-proto-grpc>=1.36,<2",
+  "opentelemetry-instrumentation-fastapi>=0.57b0,<1",
+  "opentelemetry-instrumentation-sqlalchemy>=0.57b0,<1",
+  "opentelemetry-sdk>=1.36,<2",
+  "polars>=1.32,<2",
+  "prometheus-client>=0.22,<1",
+  "psycopg[binary,pool]>=3.2,<4",
+  "pyarrow>=23.0.1,<24",
+  "pydantic>=2.11,<3",
+  "pydantic-settings>=2.10,<3",
+  "pypdf>=6,<7",
+  "python-multipart>=0.0.20,<1",
+  "sqlalchemy>=2.0.52,<3",
+  "structlog>=25,<26",
+  "typer>=0.16,<1",
+  "uvicorn[standard]>=0.35,<1"
+]
+
+[project.scripts]
+ehrfs = "ehrfs.cli.app:app"
+
+[dependency-groups]
+dev = [
+  "coverage[toml]>=7.10,<8",
+  "hypothesis>=6.138,<7",
+  "mypy>=1.17,<2",
+  "numpy==2.2.6",
+  "pip-audit>=2.9,<3",
+  "pre-commit>=4.3,<5",
+  "pytest>=9.0.3,<10",
+  "pytest-asyncio>=1.1,<2",
+  "pytest-cov>=6.2,<7",
+  "pytest-xdist>=3.8,<4",
+  "ruff>=0.12,<1",
+  "testcontainers[postgres,minio]>=4.12,<5",
+  "types-boto3[s3]>=1.40,<2",
+  "types-defusedxml>=0.7,<1"
+]
+mutation = ["mutmut>=3.3,<4"]
+benchmark = ["numpy==2.2.6"]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ehrfs", "apps/api/src/ehrfs_api"]
+
+[tool.uv]
+default-groups = ["dev"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "apps/api/src", "tests"]
+
+[tool.ruff.lint]
+select = ["A", "ASYNC", "B", "BLE", "C4", "DTZ", "E", "F", "FAST", "I", "N", "PERF", "PIE", "PL", "PTH", "RET", "RSE", "RUF", "S", "SIM", "T20", "TRY", "UP", "W"]
+ignore = ["PLR0913"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "S106", "PLR2004"]
+"scripts/**/*.py" = ["T20"]
+"src/ehrfs/config.py" = ["S105"]
+"src/ehrfs/storage/tables.py" = ["RUF012"]
+"src/ehrfs/observability.py" = ["RUF012"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unreachable = true
+plugins = ["pydantic.mypy"]
+mypy_path = ["src", "apps/api/src"]
+
+[[tool.mypy.overrides]]
+module = ["numpy", "pyarrow", "pyarrow.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["airflow", "airflow.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["ehrfs_pipeline"]
+disallow_untyped_decorators = false
+
+[tool.pytest.ini_options]
+addopts = "--strict-config --strict-markers"
+testpaths = ["tests", "airflow/tests"]
+pythonpath = ["."]
+markers = [
+  "integration: requires local containers",
+  "ocr: requires the OCR profile",
+  "performance: resource-intensive benchmark"
+]
+
+[tool.coverage.run]
+branch = true
+source = ["ehrfs", "ehrfs_api"]
+omit = ["*/migrations/*"]
+
+[tool.coverage.report]
+fail_under = 95
+show_missing = true
+skip_covered = true
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
+  "raise NotImplementedError"
+]
+
+[tool.mutmut]
+source_paths = ["src/ehrfs/"]
+only_mutate = [
+  "src/ehrfs/canonical/*",
+  "src/ehrfs/fingerprinting/*",
+  "src/ehrfs/mapping/*",
+  "src/ehrfs/quality/*",
+  "src/ehrfs/catalog/*"
+]
+pytest_add_cli_args_test_selection = [
+  "tests/property/test_fingerprints.py",
+  "tests/unit/test_states_and_conditions.py",
+  "tests/unit/test_mapping_and_standardization.py",
+  "tests/unit/test_quality_and_omop.py",
+  "tests/unit/test_critical_paths.py",
+  "tests/unit/test_pipeline_service.py",
+  "tests/unit/test_domain_models.py",
+  "tests/unit/test_edge_contracts.py",
+  "tests/unit/test_coverage.py",
+  "tests/unit/test_structured_adapters_and_archives.py"
+]
+mutate_only_covered_lines = true

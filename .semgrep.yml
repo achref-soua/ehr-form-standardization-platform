@@ -1,0 +1,36 @@
+rules:
+  - id: python-dynamic-code-execution
+    message: Dynamic Python code execution is forbidden in the clinical-data boundary.
+    severity: ERROR
+    languages: [python]
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: exec(...)
+
+  - id: python-unsafe-yaml-load
+    message: Use yaml.safe_load for untrusted configuration.
+    severity: ERROR
+    languages: [python]
+    patterns:
+      - pattern: yaml.load(...)
+      - pattern-not: yaml.load(..., Loader=yaml.SafeLoader, ...)
+
+  - id: python-subprocess-shell
+    message: Shell-enabled subprocesses are forbidden; pass an argument vector.
+    severity: ERROR
+    languages: [python]
+    pattern: subprocess.$METHOD(..., shell=True, ...)
+
+  - id: javascript-dynamic-code-execution
+    message: Dynamic JavaScript execution is forbidden.
+    severity: ERROR
+    languages: [javascript, typescript]
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)
+
+  - id: react-dangerous-html
+    message: Avoid bypassing React output encoding.
+    severity: ERROR
+    languages: [typescript]
+    pattern: <$ELEMENT ... dangerouslySetInnerHTML={...} ... />

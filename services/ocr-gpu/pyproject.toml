@@ -1,0 +1,26 @@
+[project]
+name = "ehrfs-local-ocr-gpu"
+version = "0.1.0"
+description = "GPU dependency lock for the isolated local PaddleOCR process"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "fastapi==0.141.1",
+  "numpy==2.2.6",
+  "paddleocr==3.7.0",
+  "paddlepaddle-gpu==3.2.2",
+  "pillow==12.3.0",
+  "prometheus-client==0.26.0",
+  "python-multipart==0.0.32",
+  "uvicorn==0.52.4",
+]
+
+[tool.uv]
+package = false
+
+[[tool.uv.index]]
+name = "paddle-cu118"
+url = "https://www.paddlepaddle.org.cn/packages/stable/cu118/"
+explicit = true
+
+[tool.uv.sources]
+paddlepaddle-gpu = { index = "paddle-cu118" }

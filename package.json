@@ -1,0 +1,18 @@
+{
+  "name": "ehr-form-standardization-platform",
+  "private": true,
+  "packageManager": "pnpm@11.6.0",
+  "scripts": {
+    "build": "pnpm --dir apps/web build",
+    "dev": "pnpm --dir apps/web dev",
+    "lint": "pnpm --dir apps/web lint",
+    "test": "pnpm --dir apps/web test",
+    "test:e2e": "pnpm --dir apps/web test:e2e",
+    "typecheck": "pnpm --dir apps/web typecheck"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "21.2.2",
+    "@commitlint/config-conventional": "21.2.2",
+    "@mermaid-js/mermaid-cli": "11.16.0"
+  }
+}

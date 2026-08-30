@@ -1,0 +1,10 @@
+flowchart LR
+  FD["Définition"] --> FV["Version de formulaire"]
+  FV --> ITEM["Champ / groupe"]
+  ITEM --> VS["Liste de valeurs"]
+  ITEM --> COND["Condition d'affichage"]
+  FV --> RESP["Réponse"]
+  RESP --> EVENT["Événement canonique"]
+  EVENT --> EVID["Preuve source"]
+  EVENT --> FACT["Fait clinique"]
+  LIFE["Correction / annulation"] --> RESP

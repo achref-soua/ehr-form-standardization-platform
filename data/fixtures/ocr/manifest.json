@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "generator": "Playwright 1.62.1 / Chromium 1234",
+  "synthetic": true,
+  "source_text": "Allergie à la pénicilline avec urticaire.",
+  "transformations": {
+    "allergy-clean.png": [
+      "native browser rasterization",
+      "blue document border"
+    ],
+    "allergy-degraded.jpg": [
+      "rotation 1.4deg",
+      "blur 0.45px",
+      "contrast 72%",
+      "JPEG quality 46",
+      "uneven grayscale border"
+    ]
+  },
+  "files": {
+    "allergy-clean.png": {
+      "sha256": "2d4852130bdbb5fb15006dd5bb14e2b75837ebab935bceb96946838017500e78"
+    },
+    "allergy-degraded.jpg": {
+      "sha256": "3a8826f31516154ece6bdc2be320d6e9b7a697a1b986ad23dffc3be3e21ec320"
+    }
+  }
+}
