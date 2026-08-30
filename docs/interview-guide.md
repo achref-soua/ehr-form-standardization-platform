@@ -23,8 +23,8 @@ scenario. Keep these tabs open:
 | MinIO           | <http://localhost:9001>         | Evidence/release object store     |
 | OCR health      | <http://localhost:8081/healthz> | Isolated local CPU inference      |
 
-Grafana's synthetic local credentials are `ehrfs` / `ehrfs-local-only`. MinIO credentials are in
-the local `.env`. These values are demo-only and are rejected as production configuration.
+The repository owner keeps demo-only usernames and passwords in the ignored
+`.local/SHOWCASE_ACCESS.md` file. Credentials must not be copied into public documentation.
 
 Run `make showcase-scale` once before presenting to rehearse the bounded one-million-event data
 path. The reviewed full proof can be repeated with

@@ -12,7 +12,7 @@ import structlog
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from sqlalchemy.orm import Session, sessionmaker
 from starlette.middleware.base import RequestResponseEndpoint
 
@@ -23,6 +23,7 @@ from ehrfs.observability import API_LATENCY, API_REQUESTS, configure_logging, co
 from ehrfs.security.signing import ReleaseSigner
 from ehrfs.storage.database import create_engine, create_schema
 from ehrfs.storage.objects import S3ObjectStore
+from ehrfs_api.api_docs import API_DOCS_CSS, API_DOCS_HTML, API_DOCS_JS
 from ehrfs_api.routes import router
 from ehrfs_api.schemas import ProblemDetail
 
@@ -76,8 +77,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         ),
         lifespan=lifespan,
         openapi_url="/api/v1/openapi.json",
-        docs_url="/docs",
-        redoc_url="/redoc",
+        docs_url=None,
+        redoc_url=None,
     )
     application.state.settings = resolved_settings
     application.state.session_factory = factory
@@ -172,6 +173,22 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             media_type="application/problem+json",
             headers=error.headers,
         )
+
+    @application.get("/docs", include_in_schema=False, response_class=HTMLResponse)
+    def api_reference() -> str:
+        return API_DOCS_HTML
+
+    @application.get("/docs/assets/api-docs.css", include_in_schema=False)
+    def api_reference_css() -> Response:
+        return Response(API_DOCS_CSS, media_type="text/css")
+
+    @application.get("/docs/assets/api-docs.js", include_in_schema=False)
+    def api_reference_javascript() -> Response:
+        return Response(API_DOCS_JS, media_type="application/javascript")
+
+    @application.get("/redoc", include_in_schema=False)
+    def legacy_api_reference() -> RedirectResponse:
+        return RedirectResponse("/docs")
 
     application.include_router(router)
     return application

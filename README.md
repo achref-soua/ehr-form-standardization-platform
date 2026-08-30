@@ -69,14 +69,69 @@ Prerequisites: Docker with Compose, Node.js 24, pnpm 11, Python 3.12, and uv.
 git clone <repository-url> ehr-form-standardization-platform
 cd ehr-form-standardization-platform
 cp .env.example .env
-make up
+make showcase-up
 ```
 
-Open <http://localhost:3000>. The API reference is at <http://localhost:8000/docs>, MinIO at
-<http://localhost:9001>, and the seeded personas are Engineer, Clinical steward, Researcher,
-and Platform operator. Persona switching exists only when `EHRFS_DEMO_MODE=true`.
+`showcase-up` builds the complete CPU profile, waits for service readiness, and restores the
+deterministic opening scenario. Open these local surfaces:
 
-Core startup is CPU-only and does not download an OCR model. Stop it with `make down`.
+| Surface               | URL                                         | Started by                              |
+| --------------------- | ------------------------------------------- | --------------------------------------- |
+| Web application       | <http://localhost:3000>                     | `make up` or `make showcase-up`         |
+| Offline API reference | <http://localhost:8000/docs>                | `make up` or `make showcase-up`         |
+| Raw OpenAPI contract  | <http://localhost:8000/api/v1/openapi.json> | `make up` or `make showcase-up`         |
+| Grafana               | <http://localhost:3001>                     | `make up-full` or `make showcase-up`    |
+| Prometheus            | <http://localhost:9090>                     | `make up-full` or `make showcase-up`    |
+| Airflow adapter       | <http://localhost:8088>                     | `make up-full` or `make showcase-up`    |
+| MinIO console         | <http://localhost:9001>                     | `make up` or `make showcase-up`         |
+| Local OCR health      | <http://localhost:8081/healthz>             | `make up-ocr-cpu` or `make showcase-up` |
+
+The API reference uses only same-origin assets and therefore works without access to a public CDN.
+The web personas are Engineer, Clinical steward, Researcher, and Platform operator; persona
+switching exists only when `EHRFS_DEMO_MODE=true`. Local passwords must not be added to this public
+README. The repository owner keeps presentation access notes under the ignored `.local/` directory.
+
+Core startup is CPU-only and does not download an OCR model. Stop any local profile with
+`make down`; volumes and evidence remain intact.
+
+### Local operation commands
+
+```bash
+# Discover every supported command.
+make help
+
+# Start only PostgreSQL, MinIO, API, worker, and web.
+make up
+
+# Add Airflow, OpenTelemetry, Prometheus, and Grafana.
+make up-full
+
+# Add isolated local CPU OCR.
+make up-ocr-cpu
+
+# Start all of the above, wait for readiness, and reset the synthetic story.
+make showcase-up
+
+# Verify every browser-facing showcase service without modifying data.
+make showcase-check
+
+# Restore only the deterministic synthetic rows used by the walkthrough.
+make showcase-reset
+
+# Follow the application processes; Ctrl-C stops following, not the containers.
+make logs
+
+# Inspect every container directly.
+docker compose -f infra/compose/compose.yaml ps
+
+# Stop containers without deleting data or named volumes.
+make down
+```
+
+For live code development rather than containers, use `make api`, `make worker`, and `make web` in
+separate terminals after configuring host-reachable PostgreSQL and MinIO URLs. `make seed` and
+`make reset-demo` intentionally operate inside the running API container so Compose hostnames are
+resolved correctly.
 
 ### Interview showcase
 
@@ -119,8 +174,15 @@ bulk coordinator and atomic publication design.
 | `make showcase-check`                        | Check all eight browser-facing showcase services                |
 | `make showcase-reset`                        | Restore the opening synthetic quarantine scenario               |
 | `make showcase-scale`                        | Run a one-million-event bounded scale rehearsal                 |
+| `make logs`                                  | Follow API, worker, and web logs                                |
+| `make down`                                  | Stop services without deleting named volumes                    |
 | `make seed`                                  | Idempotently seed the guided synthetic scenario                 |
 | `make reset-demo`                            | Reset only demonstration rows                                   |
+| `make ocr-smoke`                             | Run and measure the local CPU OCR fixture                       |
+| `make full-profile-smoke`                    | Check Airflow and observability readiness                       |
+| `make security-smoke`                        | Verify ClamAV clean and test-payload decisions                  |
+| `make recovery-smoke`                        | Exercise checksummed backup and isolated restore                |
+| `make screenshots`                           | Regenerate desktop/mobile route screenshots                     |
 | `make docs`                                  | Rebuild OpenAPI, Mermaid SVGs, and the eight-page French PDF    |
 | `make openapi`                               | Regenerate OpenAPI and TypeScript contracts                     |
 | `make test`                                  | Run Python and frontend suites                                  |
