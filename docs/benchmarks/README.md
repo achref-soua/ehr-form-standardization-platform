@@ -55,9 +55,9 @@ Command: `make benchmark-100m`. The complete measured JSON is written to
 
 ## Critical mutation run, 2026-08-30
 
-- Mutmut 3.7.0 generated 559 covered mutations across canonical lifecycle, fingerprints,
+- Mutmut 3.7.0 generated 636 covered mutations across canonical lifecycle, fingerprints,
   mapping, quality, coverage, and catalog semantics.
-- 429 were assertion-killed and 130 were timeout-killed; 0 survived and 0 lacked tests.
+- 505 were assertion-killed and 131 were timeout-killed; 0 survived and 0 lacked tests.
 - Detection score: 100% of testable mutations, above the 90% gate.
 
 Command: `make mutation`. Timeout-killed mutations are changes that made a bounded critical path
