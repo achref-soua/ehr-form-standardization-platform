@@ -98,7 +98,7 @@ def create_mapping_release(
         "release_id": release_id,
         "parent_release_id": parent_release_id,
         "vocabulary_release": vocabulary_release.model_dump(),
-        "entries": [entry.model_dump(mode="json") for entry in entries],
+        "entries": [entry.model_dump() for entry in entries],
         "authored_by": authored_by,
         "approved_by": approved_by,
         "approved_at": approved_at.isoformat().replace("+00:00", "Z"),
