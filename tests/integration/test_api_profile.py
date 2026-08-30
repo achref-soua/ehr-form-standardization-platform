@@ -113,6 +113,19 @@ def test_health_error_shapes_and_session_boundaries(
     assert client.get("/api/v1/health/ready").json()["status"] == "ready"
     assert len(client.get("/api/v1/session/personas").json()) == 4
 
+    docs = client.get("/docs")
+    assert docs.status_code == 200
+    assert "/docs/assets/api-docs.js" in docs.text
+    assert "/api/v1/openapi.json" in docs.text
+    assert "cdn.jsdelivr" not in docs.text
+    assert client.get("/docs/assets/api-docs.css").headers["content-type"].startswith("text/css")
+    assert (
+        client.get("/docs/assets/api-docs.js")
+        .headers["content-type"]
+        .startswith("application/javascript")
+    )
+    assert client.get("/redoc", follow_redirects=False).headers["location"] == "/docs"
+
     unauthenticated = client.get("/api/v1/sources")
     assert unauthenticated.status_code == 401
     assert unauthenticated.headers["content-type"].startswith("application/problem+json")
