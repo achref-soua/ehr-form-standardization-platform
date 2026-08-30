@@ -3,6 +3,7 @@ SHELL := /bin/bash
 .PHONY: help install format format-check lint typecheck test test-python test-web build api worker web keys data-synthea up up-full up-ocr-cpu up-ocr-gpu ocr-smoke ocr-smoke-gpu security-smoke full-profile-smoke recovery-smoke mutation container-scan ocr-container-scan down logs seed reset-demo screenshots backup restore clean-preview clean-confirm openapi case-study docs lock-check security-audit ci-static ci-test ci-integration ci verify-all benchmark-100m
 
 COMPOSE := docker compose -f infra/compose/compose.yaml
+IMAGE_PREFIX := $(or $(COMPOSE_PROJECT_NAME),ehrfs)
 
 help: ## Show available targets
 	@awk 'BEGIN {FS = ":.*## "; printf "EHRFS local commands\n\n"} /^[a-zA-Z0-9_-]+:.*## / {printf "  %-18s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -158,12 +159,12 @@ security-audit: ## Audit dependencies and scan committed files for secrets
 
 container-scan: ## Fail on fixable high/critical findings in locally built runtime images
 	mkdir -p artifacts/security
-	docker run --rm --volume /var/run/docker.sock:/var/run/docker.sock --volume ehrfs-trivy-cache:/root/.cache --volume "$(CURDIR)/artifacts/security:/reports" --entrypoint /bin/sh aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969 -ceu 'for target in ehrfs-api:latest ehrfs-worker:latest ehrfs-web:latest; do safe=$$(printf "%s" "$$target" | tr ":/" "--"); trivy image --exit-code 1 --ignore-unfixed --severity CRITICAL,HIGH --scanners vuln --format json --output "/reports/trivy-$$safe.json" "$$target"; echo "Trivy scan passed: $$target"; done'
+	docker run --rm --volume /var/run/docker.sock:/var/run/docker.sock --volume ehrfs-trivy-cache:/root/.cache --volume "$(CURDIR)/artifacts/security:/reports" --entrypoint /bin/sh aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969 -ceu 'for target in $(IMAGE_PREFIX)-api:latest $(IMAGE_PREFIX)-worker:latest $(IMAGE_PREFIX)-web:latest; do safe=$$(printf "%s" "$$target" | tr ":/" "--"); trivy image --exit-code 1 --ignore-unfixed --severity CRITICAL,HIGH --scanners vuln --format json --output "/reports/trivy-$$safe.json" "$$target"; echo "Trivy scan passed: $$target"; done'
 
 ocr-container-scan: ## Scan the isolated live-OCR runtime after its profile build
 	mkdir -p artifacts/security
-	docker run --rm --volume /var/run/docker.sock:/var/run/docker.sock --volume ehrfs-trivy-cache:/root/.cache --volume "$(CURDIR)/artifacts/security:/reports" --entrypoint /usr/local/bin/trivy aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969 image --exit-code 1 --ignore-unfixed --severity CRITICAL,HIGH --scanners vuln --format json --output /reports/trivy-ehrfs-ocr-cpu-latest.json ehrfs-ocr-cpu:latest
-	@echo 'Trivy scan passed: ehrfs-ocr-cpu:latest'
+	docker run --rm --volume /var/run/docker.sock:/var/run/docker.sock --volume ehrfs-trivy-cache:/root/.cache --volume "$(CURDIR)/artifacts/security:/reports" --entrypoint /usr/local/bin/trivy aquasec/trivy:0.74.0@sha256:62b1e65e8869bc4b4c6aa4fa2b21595256c7c2f6018a9d9ad61caf87187c1969 image --exit-code 1 --ignore-unfixed --severity CRITICAL,HIGH --scanners vuln --format json --output /reports/trivy-$(IMAGE_PREFIX)-ocr-cpu-latest.json $(IMAGE_PREFIX)-ocr-cpu:latest
+	@echo 'Trivy scan passed: $(IMAGE_PREFIX)-ocr-cpu:latest'
 
 ci-static: lock-check format-check lint typecheck docs security-audit ## Run static, documentation, and supply-chain checks
 	uv run python scripts/export_openapi.py --check
