@@ -8,7 +8,6 @@ from pathlib import Path
 
 from sqlalchemy import Connection, text
 
-ASSET_ROOT = Path(__file__).resolve().parents[3] / "infra" / "postgres" / "omop54"
 ASSET_SHA256 = {
     "OMOPCDM_postgresql_5.4_ddl.sql": (
         "ae99be6e79edfad5f17ef71edda176281b45e3aa9e400e7a9f829103f5ec4771"
@@ -30,6 +29,18 @@ INSTALL_ASSETS = (
 )
 SCHEMA_PATTERN = re.compile(r"^[a-z][a-z0-9_]{0,62}$")
 OFFICIAL_TABLE_COUNT = 39
+MODULE_PATH = Path(__file__).resolve()
+
+
+def resolve_asset_root(module_path: Path = MODULE_PATH) -> Path:
+    """Resolve packaged SQL first and the repository source tree second."""
+    packaged = module_path.parent / "assets"
+    if packaged.is_dir():
+        return packaged
+    return module_path.parents[3] / "infra" / "postgres" / "omop54"
+
+
+ASSET_ROOT = resolve_asset_root()
 
 
 class UnknownOmopAssetError(ValueError):
