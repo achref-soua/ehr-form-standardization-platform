@@ -60,9 +60,20 @@ test("guided maker-checker replay creates a new immutable release", async ({
     "Platform Operator",
   );
   await page.goto("/quarantine");
+  const quarantineStatus = async () => {
+    const response = await page.request.get("/api/v1/quarantine");
+    expect(response.ok()).toBe(true);
+    const records = (await response.json()) as Array<{ status: string }>;
+    return records[0]?.status;
+  };
   const replay = page.getByRole("button", { name: "Replay" });
-  if (await replay.isEnabled()) await replay.click();
-  await expect(page.getByText(/REPLAY QUEUED|RESOLVED/).first()).toBeVisible();
+  if ((await quarantineStatus()) === "OPEN") {
+    await expect(replay).toBeEnabled();
+    await replay.click();
+  }
+  await expect
+    .poll(quarantineStatus, { timeout: 15_000 })
+    .toMatch(/^(REPLAY_QUEUED|RESOLVED)$/);
 
   await page.goto("/omop");
   await expect(page.locator("h1")).toContainText("OMOP");
