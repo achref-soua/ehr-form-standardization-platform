@@ -90,10 +90,10 @@ security-smoke: ## Verify live ClamAV clean and EICAR test-payload decisions
 
 full-profile-smoke: ## Verify Airflow and the complete observability profile
 	$(MAKE) up-full
-	curl --fail --silent http://127.0.0.1:9090/-/ready >/dev/null
-	curl --fail --silent http://127.0.0.1:13133/ >/dev/null
-	curl --fail --silent http://127.0.0.1:3001/api/health >/dev/null
-	curl --fail --silent http://127.0.0.1:8088/api/v2/monitor/health >/dev/null
+	curl --fail --silent --show-error --retry 60 --retry-delay 1 --retry-max-time 120 --retry-all-errors http://127.0.0.1:9090/-/ready >/dev/null
+	curl --fail --silent --show-error --retry 60 --retry-delay 1 --retry-max-time 120 --retry-all-errors http://127.0.0.1:13133/ >/dev/null
+	curl --fail --silent --show-error --retry 60 --retry-delay 1 --retry-max-time 120 --retry-all-errors http://127.0.0.1:3001/api/health >/dev/null
+	curl --fail --silent --show-error --retry 60 --retry-delay 1 --retry-max-time 120 --retry-all-errors http://127.0.0.1:8088/api/v2/monitor/health >/dev/null
 
 recovery-smoke: ## Create, checksum, restore, and compare an isolated recovery copy
 	scripts/recovery_smoke.sh
