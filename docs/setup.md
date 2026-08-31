@@ -37,6 +37,10 @@ make web
 Regenerate a changed HTTP contract with `make openapi`. A clean build fails if the checked-in JSON
 or TypeScript schema drifts.
 
+The web build declares a versioned EHRFS favicon and web manifest. If `localhost:3000` previously
+hosted another application, reload the page once after rebuilding; a hard refresh or closing the
+old tab clears any browser-origin icon retained before the explicit EHRFS asset was available.
+
 ## OCR profiles
 
 `make up-ocr-cpu` builds the Python 3.12 OCR boundary. Model weights are downloaded lazily to the
