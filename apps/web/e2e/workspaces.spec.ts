@@ -15,6 +15,34 @@ const routes = [
   "/health",
 ];
 
+test("serves explicit EHRFS browser identity assets", async ({ page }) => {
+  await page.goto("/");
+
+  await expect(page.locator('link[rel="icon"]')).toHaveAttribute(
+    "href",
+    "/favicon.svg?v=ehrfs-1",
+  );
+  await expect(page.locator('link[rel="manifest"]')).toHaveAttribute(
+    "href",
+    "/site.webmanifest?v=ehrfs-1",
+  );
+
+  const favicon = await page.request.get("/favicon.svg?v=ehrfs-1");
+  expect(favicon.ok()).toBe(true);
+  expect(favicon.headers()["content-type"]).toContain("image/svg+xml");
+  expect(await favicon.text()).toContain("<title>EHRFS</title>");
+
+  const manifest = await page.request.get("/site.webmanifest?v=ehrfs-1");
+  expect(manifest.ok()).toBe(true);
+  expect(manifest.headers()["content-type"]).toContain(
+    "application/manifest+json",
+  );
+  await expect(manifest.json()).resolves.toMatchObject({
+    short_name: "EHRFS",
+    theme_color: "#123044",
+  });
+});
+
 for (const route of routes) {
   test(`${route} has a visible workspace and no serious axe violations`, async ({
     page,

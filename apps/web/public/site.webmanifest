@@ -1,0 +1,16 @@
+{
+  "name": "EHR Form Standardization Platform",
+  "short_name": "EHRFS",
+  "description": "Deterministic, evidence-first EHR form standardization demonstration.",
+  "icons": [
+    {
+      "src": "/favicon.svg?v=ehrfs-1",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "theme_color": "#123044",
+  "background_color": "#f1f5f7",
+  "display": "standalone"
+}
