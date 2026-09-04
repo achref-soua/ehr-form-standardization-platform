@@ -30,7 +30,9 @@ test("serves explicit EHRFS browser identity assets", async ({ page }) => {
   const favicon = await page.request.get("/favicon.svg?v=ehrfs-1");
   expect(favicon.ok()).toBe(true);
   expect(favicon.headers()["content-type"]).toContain("image/svg+xml");
-  expect(await favicon.text()).toContain("<title>EHRFS</title>");
+  expect(await favicon.text()).toContain(
+    "<title>EHR Form Standardization Platform</title>",
+  );
 
   const manifest = await page.request.get("/site.webmanifest?v=ehrfs-1");
   expect(manifest.ok()).toBe(true);
