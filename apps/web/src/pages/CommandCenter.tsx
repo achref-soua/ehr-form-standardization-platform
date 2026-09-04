@@ -194,7 +194,7 @@ export function CommandCenterPage() {
                 />
                 <Bar
                   dataKey="usable"
-                  fill="#246589"
+                  fill="#5b5bd6"
                   radius={[5, 5, 0, 0]}
                   isAnimationActive={false}
                 />

@@ -12,7 +12,7 @@ const repositoryRoot = path.resolve(webRoot, "../..");
 const source = path.join(repositoryRoot, "docs/case-study/case-study.fr.html");
 const destination = path.join(
   repositoryRoot,
-  "docs/case-study/epiconcept-case-study.fr.pdf",
+  "docs/case-study/ehr-form-standardization-case-study.fr.pdf",
 );
 
 if (!existsSync(source))

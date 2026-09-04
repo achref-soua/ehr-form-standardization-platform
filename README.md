@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/brand/epiconcept-logo.png" alt="Epiconcept" width="260">
+  <img src="docs/assets/brand/platform-logo.svg" alt="EHR Form Standardization Platform" width="360">
 </p>
 
 # EHR Form Standardization Platform
@@ -7,10 +7,10 @@
 A deterministic, evidence-linked reference platform for making customized EHR form data
 research-ready without pretending that heterogeneous clinical semantics are automatic.
 
-[![CI](https://img.shields.io/badge/CI-local%20contract-246589)](#verification)
-[![Python](https://img.shields.io/badge/Python-3.12.13-246589)](.python-version)
-[![React](https://img.shields.io/badge/React-19.2-246589)](apps/web/package.json)
-[![License](https://img.shields.io/badge/license-Apache--2.0-FCC958)](LICENSE)
+[![CI](https://img.shields.io/badge/CI-local%20contract-5B5BD6)](#verification)
+[![Python](https://img.shields.io/badge/Python-3.12.13-5B5BD6)](.python-version)
+[![React](https://img.shields.io/badge/React-19.2-5B5BD6)](apps/web/package.json)
+[![License](https://img.shields.io/badge/license-Apache--2.0-2DD4BF)](LICENSE)
 
 > This bounded demonstration uses only synthetic/project-owned data. It is not an
 > HDS-certified deployment, has not been validated against a private hospital schema, and
@@ -387,7 +387,7 @@ Read [SECURITY.md](SECURITY.md), the [threat model](docs/security/threat-model.m
 
 ## Documentation
 
-- [French eight-page case study](docs/case-study/epiconcept-case-study.fr.pdf)
+- [French eight-page case study](docs/case-study/ehr-form-standardization-case-study.fr.pdf)
 - [Architecture and decisions](docs/architecture.md)
 - [Setup and configuration](docs/setup.md)
 - [API and CLI](docs/api/)
@@ -397,6 +397,5 @@ Read [SECURITY.md](SECURITY.md), the [threat model](docs/security/threat-model.m
 
 ## Licence
 
-Apache License 2.0. The Epiconcept name and supplied logo remain the property of their respective
-owner; the Apache licence does not grant trademark rights. See [LICENSE](LICENSE) and
-[NOTICE](NOTICE).
+Apache License 2.0. The project wordmark and icon are original repository assets released under
+the same licence. See [LICENSE](LICENSE) and [NOTICE](NOTICE).

@@ -143,7 +143,7 @@ class StubOcr:
 
 def test_document_router_prefers_native_pdf_and_skips_irrelevant_images() -> None:
     ocr = StubOcr()
-    pdf = Path("docs/case-study/epiconcept-case-study.fr.pdf").read_bytes()
+    pdf = Path("docs/case-study/ehr-form-standardization-case-study.fr.pdf").read_bytes()
     native = extract_document_text(
         pdf,
         media_type="application/pdf",

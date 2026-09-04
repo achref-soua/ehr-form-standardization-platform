@@ -6,7 +6,7 @@
   "transformations": {
     "allergy-clean.png": [
       "native browser rasterization",
-      "blue document border"
+      "indigo document border"
     ],
     "allergy-degraded.jpg": [
       "rotation 1.4deg",
@@ -18,10 +18,10 @@
   },
   "files": {
     "allergy-clean.png": {
-      "sha256": "2d4852130bdbb5fb15006dd5bb14e2b75837ebab935bceb96946838017500e78"
+      "sha256": "6c6569c417a21793b363c633801674e6f6f9befc847838d853bf4e953ccd7230"
     },
     "allergy-degraded.jpg": {
-      "sha256": "3a8826f31516154ece6bdc2be320d6e9b7a697a1b986ad23dffc3be3e21ec320"
+      "sha256": "f426b9c560a2b7a45f5f7d4ea61ee1d1106a73f67d6a4ba8385c4c92505d46a2"
     }
   }
 }
