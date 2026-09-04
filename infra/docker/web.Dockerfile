@@ -11,7 +11,10 @@ COPY apps/web ./apps/web
 RUN pnpm --dir apps/web build
 
 FROM nginx:1.30.4-alpine3.24@sha256:97d490c12ba55b4946b01546d1c3ed324e8d41ab1c9fcb2a616aa470620e5b46 AS runtime
-RUN apk add --no-cache "libcrypto3=3.5.8-r0" "libssl3=3.5.8-r0"
+RUN apk add --no-cache \
+    "libcrypto3=3.5.8-r0" \
+    "libexpat=2.8.4-r0" \
+    "libssl3=3.5.8-r0"
 COPY infra/docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/apps/web/dist /usr/share/nginx/html
 RUN chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /var/run /etc/nginx/conf.d \
