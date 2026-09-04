@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 PRIVATE_MARKERS = (
     "compensation discussions",
     "EUR 60,000",
-    "first interview",
+    "private hiring preparation",
     "private planning context",
 )
 GIT_REQUIRED_MESSAGE = "git is required for repository validation"
@@ -37,8 +37,11 @@ def main() -> int:
         return 1
     required = ("LICENSE", "NOTICE", "README.md", "SECURITY.md", "uv.lock", "pnpm-lock.yaml")
     errors = [f"missing required file: {name}" for name in required if not (ROOT / name).is_file()]
-    if (ROOT / "EHR FORM STANDARDIZATION_CASE_STUDY_AND_DEMO_MASTER_SPEC.md").exists():
-        errors.append("the private master specification must stay outside this repository")
+    private_master_specs = tuple(ROOT.glob("*_CASE_STUDY_AND_DEMO_MASTER_SPEC.md"))
+    errors.extend(
+        f"private master specification must stay outside this repository: {path.name}"
+        for path in private_master_specs
+    )
     for path in tracked_text_files():
         if (
             path == Path(__file__).resolve()

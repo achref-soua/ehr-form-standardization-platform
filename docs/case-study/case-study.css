@@ -4,13 +4,13 @@
 }
 
 :root {
-  --blue: #246589;
-  --blue-dark: #173f59;
-  --blue-pale: #e5f0f5;
-  --yellow: #fcc958;
-  --ink: #183142;
-  --muted: #5b6f7b;
-  --line: #cddbe3;
+  --blue: #5b5bd6;
+  --blue-dark: #36309d;
+  --blue-pale: #eef2ff;
+  --yellow: #2dd4bf;
+  --ink: #20233d;
+  --muted: #667085;
+  --line: #dfe3ee;
   --paper: #ffffff;
 }
 
@@ -23,7 +23,7 @@ body {
   margin: 0;
   padding: 0;
   color: var(--ink);
-  background: #dfe7eb;
+  background: #eef0f7;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 9.2pt;
   line-height: 1.32;
@@ -188,7 +188,7 @@ strong {
 .metric {
   border: 0.35mm solid var(--line);
   border-radius: 2mm;
-  background: #fbfdfe;
+  background: #fafaff;
 }
 
 .card {
@@ -204,7 +204,7 @@ strong {
 .callout {
   padding: 3mm 3.5mm;
   border-left: 1.4mm solid var(--yellow);
-  background: #fffaf0;
+  background: #ecfdf8;
 }
 
 .callout p:last-child {
@@ -260,7 +260,7 @@ th {
 }
 
 tbody tr:nth-child(even) {
-  background: #f2f7fa;
+  background: #f5f3ff;
 }
 
 .states {
@@ -406,6 +406,6 @@ pre {
 @media screen {
   .page {
     margin: 8mm auto;
-    box-shadow: 0 5mm 12mm rgb(23 63 89 / 18%);
+    box-shadow: 0 5mm 12mm rgb(54 48 157 / 18%);
   }
 }

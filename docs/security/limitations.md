@@ -2,7 +2,7 @@
 
 This repository is a production-shaped demonstration built from synthetic and public data. It is
 not HDS-certified, not a medical device, not a clinical decision-support system, and not validated
-against EHR Form Standardization or Softway Medical systems.
+against any private hospital or proprietary EHR system.
 
 The FHIR adapter implements a documented R4 subset and abstains on unsupported extensions. Generic
 JSON/XML adapters accept only the public `ehrfs-structured/1.0` shape; they are not universal EHR

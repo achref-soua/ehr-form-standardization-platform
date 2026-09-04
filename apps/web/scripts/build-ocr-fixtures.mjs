@@ -14,15 +14,15 @@ const output = path.join(root, "data/fixtures/ocr");
 mkdirSync(path.join(output, "golden"), { recursive: true });
 
 const documentMarkup = `<!doctype html><html lang="fr"><head><meta charset="utf-8"><style>
-  *{box-sizing:border-box} html,body{margin:0;background:#d9d9d9;font-family:Arial,sans-serif;color:#162f40}
-  .frame{width:1120px;height:720px;margin:40px;background:white;border:4px solid #246589;padding:54px 64px;position:relative}
-  .brand{color:#246589;font-size:24px;font-weight:800;letter-spacing:.08em}.tag{color:#8a5713;font-size:14px}
-  h1{margin:44px 0 36px;font:42px Georgia,serif;color:#173f59}.label{font-size:17px;text-transform:uppercase;letter-spacing:.08em;color:#607381}
-  .value{margin-top:12px;padding:24px;border-left:10px solid #fcc958;background:#fff9ec;font-size:34px;line-height:1.35}
-  .meta{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:44px;font-size:17px}.field{border-bottom:2px solid #9eb2bf;padding:10px 0}
-  .signature{position:absolute;right:64px;bottom:50px;width:330px;color:#607381;font-size:14px}.signature div{margin-top:28px;border-top:2px solid #607381;padding-top:7px}
-  .synthetic{position:absolute;left:64px;bottom:50px;color:#9b671d;font-weight:700;font-size:13px}
-</style></head><body><article class="frame"><div class="brand">EHR FORM STANDARDIZATION <span class="tag">SMART HEALTH</span></div><h1>Compte rendu d’allergologie</h1><div class="label">Antécédents allergiques</div><div class="value">Allergie à la pénicilline avec urticaire.</div><div class="meta"><div class="field">Document : SYNTH-ALL-00482</div><div class="field">Date : 12/08/2026</div></div><div class="synthetic">SPÉCIMEN SYNTHÉTIQUE — AUCUNE DONNÉE PATIENT</div><div class="signature"><div>Signature (emplacement fictif)</div></div></article></body></html>`;
+  *{box-sizing:border-box} html,body{margin:0;background:#d9d9d9;font-family:Arial,sans-serif;color:#20233d}
+  .frame{width:1120px;height:720px;margin:40px;background:white;border:4px solid #5b5bd6;padding:54px 64px;position:relative}
+  .brand{color:#5b5bd6;font-size:24px;font-weight:800;letter-spacing:.08em}.tag{color:#0f766e;font-size:14px}
+  h1{margin:44px 0 36px;font:42px Georgia,serif;color:#36309d}.label{font-size:17px;text-transform:uppercase;letter-spacing:.08em;color:#667085}
+  .value{margin-top:12px;padding:24px;border-left:10px solid #2dd4bf;background:#ecfdf8;font-size:34px;line-height:1.35}
+  .meta{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:44px;font-size:17px}.field{border-bottom:2px solid #b7bfd4;padding:10px 0}
+  .signature{position:absolute;right:64px;bottom:50px;width:330px;color:#667085;font-size:14px}.signature div{margin-top:28px;border-top:2px solid #667085;padding-top:7px}
+  .synthetic{position:absolute;left:64px;bottom:50px;color:#0f766e;font-weight:700;font-size:13px}
+</style></head><body><article class="frame"><div class="brand">EHR FORMS <span class="tag">STANDARDIZATION PLATFORM</span></div><h1>Compte rendu d’allergologie</h1><div class="label">Antécédents allergiques</div><div class="value">Allergie à la pénicilline avec urticaire.</div><div class="meta"><div class="field">Document : SYNTH-ALL-00482</div><div class="field">Date : 12/08/2026</div></div><div class="synthetic">SPÉCIMEN SYNTHÉTIQUE — AUCUNE DONNÉE PATIENT</div><div class="signature"><div>Signature (emplacement fictif)</div></div></article></body></html>`;
 
 const browser = await chromium.launch({ headless: true });
 try {
@@ -57,7 +57,7 @@ const manifest = {
   transformations: {
     "allergy-clean.png": [
       "native browser rasterization",
-      "blue document border",
+      "indigo document border",
     ],
     "allergy-degraded.jpg": [
       "rotation 1.4deg",

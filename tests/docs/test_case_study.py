@@ -21,4 +21,4 @@ def test_case_study_uses_prerendered_diagrams_and_brand_asset() -> None:
     source = HTML.read_text(encoding="utf-8")
     assert '<pre class="mermaid"' not in source
     assert source.count("diagrams/generated/") == 5
-    assert source.count("../assets/brand/ehr-form-standardization-logo.png") == 8
+    assert source.count("../assets/brand/platform-logo.svg") == 8

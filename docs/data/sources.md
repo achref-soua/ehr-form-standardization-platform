@@ -9,7 +9,7 @@
 | OMOP CDM 5.4.2 DDL | OHDSI release v5.4.2 | Apache-2.0 | Official PostgreSQL DDL, keys, indices, and constraint source vendored with checksums |
 | Athena vocabulary | User-provided pinned snapshot | OHDSI/Athena terms | Local chunked import; restricted terminology never committed |
 | PaddleOCR models | Downloaded by isolated profile | Apache-2.0/model-specific notice | Weights stay in an ignored Docker volume |
-| EHR Form Standardization logo | Supplied by the project owner | Trademark rights reserved | Used for this case study; no trademark licence asserted |
+| Project logo | Project-authored SVG | Apache-2.0 | Original geometric wordmark used by the app and documentation |
 
 Every generated bulk-data manifest records source URL, version or image digest, licence, seeds,
 generator settings, output checksum, and a `contains_real_patient_data=false` assertion. Fetching

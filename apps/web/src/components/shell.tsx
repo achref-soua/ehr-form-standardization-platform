@@ -60,10 +60,10 @@ export function Shell({
             <div className="brand-identity">
               <img
                 className="brand-logo"
-                src="/ehr-form-standardization-logo.png"
-                alt="EHR Form Standardization — smart health"
-                width="1602"
-                height="487"
+                src="/platform-logo.svg"
+                alt="EHR Form Standardization Platform"
+                width="560"
+                height="144"
               />
               <span>EHR evidence control plane</span>
             </div>

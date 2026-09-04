@@ -4,12 +4,12 @@
     "background": "#ffffff",
     "fontFamily": "Arial, sans-serif",
     "fontSize": "15px",
-    "primaryColor": "#e6f3f1",
-    "primaryTextColor": "#153a3a",
-    "primaryBorderColor": "#207a72",
-    "lineColor": "#56706e",
-    "secondaryColor": "#fff3d9",
-    "tertiaryColor": "#f4f6f6"
+    "primaryColor": "#eef2ff",
+    "primaryTextColor": "#24244a",
+    "primaryBorderColor": "#5b5bd6",
+    "lineColor": "#667085",
+    "secondaryColor": "#ecfdf8",
+    "tertiaryColor": "#f6f7fb"
   },
   "flowchart": {
     "curve": "linear",

@@ -16,9 +16,9 @@ HTML_PAGE_COUNT_MESSAGE = "The semantic HTML must contain exactly eight pages"
 PDF_PAGE_COUNT_MESSAGE = "Expected {expected} PDF pages, found {actual}"
 NORMALIZATION_MESSAGE = "Normalization changed the case-study page count"
 FIXED_METADATA = {
-    "/Title": "Exploitation des formulaires DPI personnalisés",
+    "/Title": "Standardisation des formulaires EHR personnalisés",
     "/Author": "Achref Soua",
-    "/Subject": "Architecture déterministe de standardisation des formulaires DPI",
+    "/Subject": "Architecture déterministe de standardisation des formulaires EHR",
     "/Creator": "EHR Form Standardization Platform",
     "/Producer": "Chromium and pypdf",
     "/CreationDate": "D:20260829000000+02'00'",
