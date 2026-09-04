@@ -41,7 +41,7 @@ dev = [
   "coverage[toml]>=7.10,<8",
   "hypothesis>=6.138,<7",
   "mypy>=1.17,<2",
-  "numpy==2.2.6",
+  "numpy==2.5.2",
   "pip-audit>=2.9,<3",
   "pre-commit>=4.3,<5",
   "pytest>=9.0.3,<10",
@@ -54,7 +54,7 @@ dev = [
   "types-defusedxml>=0.7,<1"
 ]
 mutation = ["mutmut>=3.3,<4"]
-benchmark = ["numpy==2.2.6"]
+benchmark = ["numpy==2.5.2"]
 
 [build-system]
 requires = ["hatchling>=1.27"]
