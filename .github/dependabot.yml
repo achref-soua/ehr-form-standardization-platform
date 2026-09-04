@@ -15,7 +15,7 @@ updates:
       frontend-minor-patch:
         update-types: [minor, patch]
   - package-ecosystem: docker
-    directory: /
+    directory: /infra/docker
     schedule:
       interval: weekly
   - package-ecosystem: github-actions
