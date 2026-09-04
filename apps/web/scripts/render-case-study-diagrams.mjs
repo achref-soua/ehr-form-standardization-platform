@@ -16,6 +16,10 @@ const configuration = path.join(
   repositoryRoot,
   "docs/case-study/mermaid-theme.json",
 );
+const puppeteerConfiguration = path.join(
+  repositoryRoot,
+  "docs/case-study/puppeteer-config.json",
+);
 
 mkdirSync(outputDirectory, { recursive: true });
 for (const source of readdirSync(sourceDirectory)
@@ -32,6 +36,8 @@ for (const source of readdirSync(sourceDirectory)
       "transparent",
       "--configFile",
       configuration,
+      "--puppeteerConfigFile",
+      puppeteerConfiguration,
       "--input",
       path.join(sourceDirectory, source),
       "--output",

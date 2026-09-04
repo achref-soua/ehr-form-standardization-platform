@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from typing import cast
 
 import pytest
+from click import unstyle
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 from testcontainers.community.postgres import PostgresContainer
@@ -90,7 +91,8 @@ def test_key_generation_refuses_accidental_replacement(tmp_path: Path) -> None:
     assert (destination / "ehrfs_signing_key").stat().st_mode & 0o777 == 0o600
     exit_code, output = _invoke("keys", "generate", "--destination", str(destination))
     assert exit_code != 0
-    assert KEYS_EXIST_MESSAGE in output
+    plain_output = " ".join(unstyle(output).replace("│", " ").split())
+    assert KEYS_EXIST_MESSAGE in plain_output
     exit_code, output = _invoke("keys", "generate", "--destination", str(destination), "--force")
     assert exit_code == 0
     assert (destination / "ehrfs_signing_key.pub").exists()

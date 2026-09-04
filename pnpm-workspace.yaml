@@ -1,11 +1,15 @@
 packages:
   - apps/web
+fetchRetries: 5
+fetchRetryMintimeout: 10000
+fetchRetryMaxtimeout: 60000
+fetchTimeout: 120000
 allowBuilds:
   puppeteer: false
 minimumReleaseAgeExclude:
-  - '@tanstack/react-table@9.2.4'
-  - '@tanstack/table-core@9.2.4'
-  - '@vitejs/plugin-react@6.1.1'
+  - "@tanstack/react-table@9.2.4"
+  - "@tanstack/table-core@9.2.4"
+  - "@vitejs/plugin-react@6.1.1"
   - lucide-react@1.35.0
   - react-router-dom@7.18.3
   - react-router@7.18.3

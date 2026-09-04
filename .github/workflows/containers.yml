@@ -39,11 +39,11 @@ jobs:
           load: true
           push: false
           tags: ehrfs/${{ matrix.name }}:ci
-          provenance: mode=max
-          sbom: true
+          provenance: false
+          sbom: false
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
-      - uses: aquasecurity/trivy-action@0.33.1
+      - uses: aquasecurity/trivy-action@v0.36.0
         with:
           version: v0.74.0
           image-ref: ehrfs/${{ matrix.name }}:ci
