@@ -18,6 +18,17 @@ mutants/
 .DS_Store
 .idea/
 .vscode/
+
+# Local tooling metadata
+AGENTS.md
+CODEX.md
+.codex/
+CLAUDE.md
+.claude/
+.cursor/
+.cursorrules
+.github/copilot-instructions.md
+
 node_modules/
 apps/web/dist/
 apps/web/coverage/
