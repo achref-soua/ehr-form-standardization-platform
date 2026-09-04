@@ -18,7 +18,7 @@ Hardware-dependent checks write measured reports under `artifacts/`; reviewed be
 under `docs/benchmarks/` identify the exact environment and command.
 
 Scale evidence is deliberately layered. The browser scenario is a live end-to-end correctness
-proof. `make showcase-scale` defaults to a one-million-event rehearsal of the bounded canonical
+proof. `make showcase-scale` defaults to a one-million-event validation of the bounded canonical
 path; `SHOWCASE_EVENTS=100000000 make showcase-scale` reruns the full measured data-plane proof.
 Neither command claims end-to-end production throughput. That claim would require representative
 source traffic through the target PostgreSQL, MinIO, worker, quality, OMOP, catalog, and lineage

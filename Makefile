@@ -78,19 +78,19 @@ up-ocr-cpu: keys ## Start core plus isolated local PaddleOCR CPU inference
 up-ocr-gpu: keys ## Start core plus isolated local PaddleOCR GPU inference
 	$(COMPOSE) --profile ocr-gpu up --build -d
 
-showcase-up: keys ## Start, reset, and verify the complete CPU interview showcase
+showcase-up: keys ## Start, reset, and verify the complete CPU showcase
 	@test -f .env || (echo 'Missing .env: run cp .env.example .env' && exit 2)
 	EHRFS_OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317 $(COMPOSE) --profile full --profile ocr-cpu up --build -d --wait --wait-timeout 600
 	$(COMPOSE) exec -T api ehrfs demo reset
 	uv run python scripts/showcase_check.py --wait-seconds 120
 
-showcase-check: ## Check every browser-facing interview service
+showcase-check: ## Check every browser-facing showcase service
 	uv run python scripts/showcase_check.py
 
-showcase-reset: ## Restore only the deterministic synthetic interview scenario
+showcase-reset: ## Restore only the deterministic synthetic opening scenario
 	$(COMPOSE) exec -T api ehrfs demo reset
 
-showcase-scale: ## Run a bounded scale rehearsal; set SHOWCASE_EVENTS=100000000 for the full proof
+showcase-scale: ## Run a bounded scale validation; set SHOWCASE_EVENTS=100000000 for the full proof
 	uv run --group benchmark python scripts/benchmark_100m.py --events $(SHOWCASE_EVENTS) --partition-rows $(SHOWCASE_PARTITION_ROWS) --output artifacts/benchmarks/answer-events-showcase.json
 
 ocr-smoke: ## Run and measure live local OCR against the synthetic French fixture

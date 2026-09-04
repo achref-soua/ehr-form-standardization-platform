@@ -12,8 +12,6 @@ research-ready without pretending that heterogeneous clinical semantics are auto
 [![React](https://img.shields.io/badge/React-19.2-246589)](apps/web/package.json)
 [![License](https://img.shields.io/badge/license-Apache--2.0-FCC958)](LICENSE)
 
-![Command center](docs/assets/generated/command-center-desktop.png)
-
 > This bounded demonstration uses only synthetic/project-owned data. It is not an
 > HDS-certified deployment, has not been validated against a private hospital schema, and
 > makes no clinical-validity or universal-standardization claim.
@@ -36,6 +34,130 @@ research-ready without pretending that heterogeneous clinical semantics are auto
   boxes, confidence thresholds, deterministic French rules, and abstention.
 - Support central patient-level processing and site-local signed aggregate export with
   small-cell suppression.
+
+## Guided application tour
+
+These screenshots come from the reset synthetic scenario produced by `make screenshots`. The
+Playwright capture checks every route at 1440×900 and 390×844, waits for the live API data, and
+fails on horizontal viewport overflow. Desktop captures are shown below for readability; each
+caption also links to the tested mobile layout.
+
+The persona menu in the top-right changes the demo session and demonstrates role boundaries:
+
+| Persona           | Demonstrated responsibility                                       |
+| ----------------- | ----------------------------------------------------------------- |
+| Engineer          | Inspect mappings, queue pipeline work, replay failures, run OCR   |
+| Clinical steward  | Review test vectors, approve/sign mappings, run reviewed OCR      |
+| Researcher        | Inspect releases, coverage, catalog metadata, and lineage         |
+| Platform operator | Queue durable runs, replay quarantined work, inspect system state |
+
+### 1. Command center — see the release posture
+
+![Command center showing release metrics, measured scale evidence, site coverage, and evidence controls](docs/assets/generated/command-center-desktop.png)
+
+The landing page separates the live end-to-end release from the bounded scale harness. It reports
+connected sites, released form versions, unresolved quarantine, published events, site-level usable
+coverage, and the signature/vocabulary/drift gates that control publication. The lower panels guide
+the version-4 drift resolution flow and show recent durable jobs and denominator-aware coverage.
+[Open the mobile capture](docs/assets/generated/command-center-mobile.png).
+
+### 2. Source explorer — inventory the input boundary
+
+![Source explorer listing synthetic source systems and supported adapters](docs/assets/generated/source-explorer-desktop.png)
+
+Every source is registered before patient-level processing. The inventory identifies the site,
+input contract, version, and state, while the adapter boundary lists the explicitly supported FHIR
+R4, QuestionnaireResponse, tabular/EAV, CDA, secure structured-data, and document paths. Inputs are
+typed and rejected explicitly; fields are not guessed. [Open the mobile capture](docs/assets/generated/source-explorer-mobile.png).
+
+### 3. Form registry — detect semantic drift
+
+![Form registry comparing detected versions and their fingerprints](docs/assets/generated/form-registry-desktop.png)
+
+The registry compares form families and versions using two identities: a complete source
+fingerprint for exact provenance and a compatibility fingerprint for safe mapping reuse. Selecting
+a version exposes its full hashes, ordered definition items, and mapping status. In the opening
+scenario, allergy version 4 is held for review because its value set changed.
+[Open the mobile capture](docs/assets/generated/form-registry-mobile.png).
+
+### 4. Mapping workspace — govern meaning with maker/checker review
+
+![Mapping workspace showing the version-4 candidate, test vectors, and approval action](docs/assets/generated/mapping-workspace-desktop.png)
+
+The draft explains the detected change and the exact transformation from local value `Inconnu` to
+canonical `UNKNOWN` and then to its bound OMOP domain. Required test vectors protect unknown,
+explicit-negative, and hidden states. Only the Clinical steward can record an approval rationale
+and create the checksummed, Ed25519-signed immutable release; the application does not mutate Git.
+[Open the mobile capture](docs/assets/generated/mapping-workspace-mobile.png).
+
+### 5. Pipeline runs — inspect durable execution
+
+![Pipeline run ledger showing successful and safely failed work](docs/assets/generated/pipeline-runs-desktop.png)
+
+The job ledger makes attempts, retry budgets, creation time, and correlation identity visible. Core
+work is leased from PostgreSQL with heartbeats and `SKIP LOCKED`, so it remains recoverable without
+Airflow. Each work unit is bounded to 50,000 answer events and advances through manifest,
+canonicalization, quality, OMOP, and catalog gates without destructively replacing completed
+content-addressed outputs. [Open the mobile capture](docs/assets/generated/pipeline-runs-mobile.png).
+
+### 6. Quarantine — preserve failures as evidence
+
+![Quarantine showing an unknown form version with preserved evidence and resolution context](docs/assets/generated/quarantine-desktop.png)
+
+Rejected facts are retained rather than dropped or coerced. Filters expose the failure reason, and
+the evidence/context panels keep the raw pointer, checksum, changed value, and required resolution
+together. After a compatible mapping is released, an Engineer or Platform operator can queue a
+controlled replay; the original failure and prior research release remain auditable.
+[Open the mobile capture](docs/assets/generated/quarantine-mobile.png).
+
+### 7. Document lab — keep OCR evidence reviewable
+
+![Document lab showing a synthetic allergy form and evidence-linked OCR candidate](docs/assets/generated/document-lab-desktop.png)
+
+The document path prefers native text and invokes isolated local OCR only for relevant image-only
+material. The screen keeps the detected bounding box, confidence, model version, checksum,
+substance, reaction, and deterministic French assertion decision together. Extraction produces a
+candidate—not a published clinical fact—and can abstain before human review.
+[Open the mobile capture](docs/assets/generated/document-lab-mobile.png).
+
+### 8. OMOP explorer — publish an immutable research projection
+
+![OMOP explorer listing research releases and projected facts](docs/assets/generated/omop-explorer-desktop.png)
+
+Canonical Parquet remains the lossless semantic source; OMOP 5.4 is a versioned research
+projection. The release table exposes mapping identity, published/quarantined counts, and checksum,
+while projected rows retain source evidence and release membership. Membership and lineage live in
+extension tables, so standard OMOP tables receive no custom release columns.
+[Open the mobile capture](docs/assets/generated/omop-explorer-mobile.png).
+
+### 9. Research catalog — judge fitness for use
+
+![Research catalog comparing site coverage and prevalence with explicit limitations](docs/assets/generated/research-catalog-desktop.png)
+
+Researchers can search concepts and inspect definitions, vocabulary identity, codes, and known
+limitations. Coverage and prevalence are shown as different measures with their own denominators,
+methods, site/period scope, and quality status. The bundled vocabulary is for software testing;
+clinical standardization requires a compatible licensed Athena snapshot.
+[Open the mobile capture](docs/assets/generated/research-catalog-mobile.png).
+
+### 10. Lineage — trace a result back to raw evidence
+
+![Lineage graph connecting raw response, canonical answer, mapping, quality, OMOP, and catalog nodes](docs/assets/generated/lineage-desktop.png)
+
+The interactive graph follows a catalog result backward through the OMOP observation, passed
+quality gates, exact mapping release, canonical answer, and immutable raw response. The ledger below
+the graph provides the same ordered identities without relying on the visualization alone.
+[Open the mobile capture](docs/assets/generated/lineage-mobile.png).
+
+### 11. System health — expose operational and audit evidence
+
+![System health showing component readiness, build metadata, safety boundaries, and audit events](docs/assets/generated/system-health-desktop.png)
+
+The final workspace combines liveness/readiness for the API, database, object store, worker, and
+optional OCR profile with build/deployment metadata. It also states the bounded safety posture and
+shows redacted privileged audit events with actor, resource, action, and correlation identity.
+Health does not imply HDS certification, clinical validation, or production qualification.
+[Open the mobile capture](docs/assets/generated/system-health-mobile.png).
 
 ## Architecture
 
@@ -88,8 +210,8 @@ deterministic opening scenario. Open these local surfaces:
 
 The API reference uses only same-origin assets and therefore works without access to a public CDN.
 The web personas are Engineer, Clinical steward, Researcher, and Platform operator; persona
-switching exists only when `EHRFS_DEMO_MODE=true`. Local passwords must not be added to this public
-README. The repository owner keeps presentation access notes under the ignored `.local/` directory.
+switching exists only when `EHRFS_DEMO_MODE=true`. Demo-only credentials must remain in ignored
+local files and must not be added to this public README.
 
 Core startup is CPU-only and does not download an OCR model. Stop any local profile with
 `make down`; volumes and evidence remain intact.
@@ -115,7 +237,7 @@ make showcase-up
 # Verify every browser-facing showcase service without modifying data.
 make showcase-check
 
-# Restore only the deterministic synthetic rows used by the walkthrough.
+# Restore only the deterministic synthetic opening scenario.
 make showcase-reset
 
 # Follow the application processes; Ctrl-C stops following, not the containers.
@@ -133,7 +255,7 @@ separate terminals after configuring host-reachable PostgreSQL and MinIO URLs. `
 `make reset-demo` intentionally operate inside the running API container so Compose hostnames are
 resolved correctly.
 
-### Interview showcase
+### Complete local showcase
 
 To start the complete CPU demonstration, including Airflow, observability, local OCR, and a reset
 of only the deterministic synthetic scenario:
@@ -144,7 +266,7 @@ make showcase-up
 
 The launcher waits for and reports all eight browser-facing services. Recheck them at any time with
 `make showcase-check`; restore the opening version-4 quarantine state with `make showcase-reset`.
-The exact walkthrough and URLs are in the [demonstration guide](docs/interview-guide.md).
+The guided application tour above explains the complete browser workflow.
 
 There are two deliberately separate proofs. The web application runs the complete raw → canonical
 → mapping → quality/quarantine → OMOP → catalog/lineage path. The scale harness measures bounded
@@ -155,9 +277,10 @@ make showcase-scale
 SHOWCASE_EVENTS=100000000 make showcase-scale
 ```
 
-The first command is a one-million-event rehearsal; the second reruns the reviewed 100-million-event
-proof. See [ADR 0009](docs/adr/0009-scale-validation-and-bulk-orchestration.md) for the production
-bulk coordinator and atomic publication design.
+The first command is a one-million-event validation run; the second reruns the reviewed
+100-million-event proof. See
+[ADR 0009](docs/adr/0009-scale-validation-and-bulk-orchestration.md) for the production bulk
+coordinator and atomic publication design.
 
 ## Build and run reference
 
@@ -170,10 +293,10 @@ bulk coordinator and atomic publication design.
 | `make up-full`                               | Add Prometheus, Grafana, and the Airflow adapter                |
 | `make up-ocr-cpu`                            | Add isolated CPU OCR on port 8081                               |
 | `make up-ocr-gpu`                            | Add isolated NVIDIA OCR on port 8082                            |
-| `make showcase-up`                           | Start, reset, and verify the complete CPU interview stack       |
+| `make showcase-up`                           | Start, reset, and verify the complete CPU showcase stack        |
 | `make showcase-check`                        | Check all eight browser-facing showcase services                |
 | `make showcase-reset`                        | Restore the opening synthetic quarantine scenario               |
-| `make showcase-scale`                        | Run a one-million-event bounded scale rehearsal                 |
+| `make showcase-scale`                        | Run a one-million-event bounded scale validation                |
 | `make logs`                                  | Follow API, worker, and web logs                                |
 | `make down`                                  | Stop services without deleting named volumes                    |
 | `make seed`                                  | Idempotently seed the guided synthetic scenario                 |
@@ -270,7 +393,6 @@ Read [SECURITY.md](SECURITY.md), the [threat model](docs/security/threat-model.m
 - [API and CLI](docs/api/)
 - [Operations and runbooks](docs/operations.md)
 - [Testing and scenario matrix](docs/testing.md)
-- [Interview demonstration guide](docs/interview-guide.md)
 - [Contributing](CONTRIBUTING.md) and [security policy](SECURITY.md)
 
 ## Licence
