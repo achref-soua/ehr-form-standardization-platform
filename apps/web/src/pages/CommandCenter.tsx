@@ -243,7 +243,7 @@ export function CommandCenterPage() {
       <div className="dashboard-grid lower-grid">
         <Panel
           title="Guided demonstration"
-          subtitle="A real backend state transition, designed for a ten-minute walkthrough"
+          subtitle="A reviewable end-to-end backend state transition"
         >
           <ol className="demo-steps">
             <li className="done">

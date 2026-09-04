@@ -1,4 +1,4 @@
-"""Check every user-facing service required for the interview showcase."""
+"""Check every user-facing service required for the complete local showcase."""
 
 from __future__ import annotations
 
@@ -84,7 +84,7 @@ def wait_for_endpoints(
 
 
 def _render_human(results: Sequence[CheckResult]) -> str:
-    lines = ["EHRFS interview showcase"]
+    lines = ["EHRFS local showcase"]
     for result in results:
         marker = "READY" if result.ready else "FAILED"
         suffix = f"HTTP {result.status}" if result.status is not None else result.error

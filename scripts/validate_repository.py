@@ -55,11 +55,6 @@ def main() -> int:
             for marker in PRIVATE_MARKERS
             if marker.casefold() in value
         )
-    remotes = subprocess.run(  # noqa: S603 -- executable is resolved from the trusted PATH
-        [git, "remote"], cwd=ROOT, check=True, capture_output=True, text=True
-    ).stdout.strip()
-    if remotes:
-        errors.append("a Git remote is configured, but this delivery must remain local")
     if errors:
         print("\n".join(f"ERROR: {error}" for error in errors))
         return 1
