@@ -4,6 +4,8 @@ SHELL := /bin/bash
 
 COMPOSE := docker compose -f infra/compose/compose.yaml
 IMAGE_PREFIX := $(or $(COMPOSE_PROJECT_NAME),ehrfs)
+EHRFS_HOST_GID ?= $(shell id -g)
+export EHRFS_HOST_GID
 SHOWCASE_EVENTS ?= 1000000
 SHOWCASE_PARTITION_ROWS ?= 50000
 
