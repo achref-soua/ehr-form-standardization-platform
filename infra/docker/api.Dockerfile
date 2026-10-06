@@ -8,7 +8,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     UV_LINK_MODE=copy \
     PATH="/app/.venv/bin:${PATH}"
 
-RUN groupadd --system --gid 10001 ehrfs \
+# Apply current Debian security fixes on top of the pinned base image.
+RUN apt-get update \
+    && apt-get upgrade --yes \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --system --gid 10001 ehrfs \
     && useradd --system --uid 10001 --gid ehrfs --home-dir /app ehrfs
 WORKDIR /app
 COPY --from=uv /uv /uvx /bin/
