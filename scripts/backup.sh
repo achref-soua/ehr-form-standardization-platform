@@ -40,7 +40,7 @@ docker run --rm --network "${compose_networks[0]}" \
   --env MC_CONFIG_DIR=/tmp/.mc \
   --volume "$backup_target/objects:/backup" \
   --entrypoint /bin/sh \
-  minio/mc:RELEASE.2025-08-13T08-35-41Z@sha256:a7fe349ef4bd8521fb8497f55c6042871b2ae640607cf99d9bede5e9bdf11727 \
+  ehrfs/minio-client:local \
   -ceu '
     mc alias set local http://minio:9000 ehrfs-local ehrfs-local-secret >/dev/null
     for bucket in ehrfs-raw ehrfs-canonical ehrfs-documents ehrfs-mapping-releases ehrfs-research-releases; do

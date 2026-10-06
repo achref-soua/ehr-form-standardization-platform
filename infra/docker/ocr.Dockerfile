@@ -10,7 +10,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PADDLE_OCR_BASE_DIR=/models \
     PADDLE_PDX_CACHE_HOME=/models
 
+# Apply current Debian security fixes on top of the pinned base image.
 RUN apt-get update \
+    && apt-get upgrade --yes \
     && apt-get install --yes --no-install-recommends libgomp1 libgl1 libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/* \
     && groupadd --system --gid 10002 ocr \
